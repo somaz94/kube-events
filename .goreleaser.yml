@@ -1,5 +1,9 @@
 version: 2
 
+before:
+  hooks:
+    - go mod tidy
+
 builds:
   - main: ./cmd/main.go
     binary: kube-events
@@ -21,18 +25,30 @@ builds:
 archives:
   - formats:
       - tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     format_overrides:
       - goos: windows
         formats:
           - zip
 
+checksum:
+  name_template: 'checksums.txt'
+
 changelog:
+  sort: asc
   filters:
     exclude:
       - '^docs:'
       - '^test:'
       - '^ci:'
       - '^chore:'
+
+release:
+  github:
+    owner: somaz94
+    name: kube-events
+  draft: false
+  prerelease: auto
 
 brews:
   - repository:
