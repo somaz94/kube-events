@@ -500,6 +500,84 @@ func TestExtractFlags_WithArgs(t *testing.T) {
 	}
 }
 
+func TestToUpper_EmptyString(t *testing.T) {
+	result := toUpper([]string{"", "warning", ""})
+	if result[0] != "" {
+		t.Errorf("expected empty string, got %q", result[0])
+	}
+	if result[1] != "Warning" {
+		t.Errorf("expected Warning, got %q", result[1])
+	}
+	if result[2] != "" {
+		t.Errorf("expected empty string, got %q", result[2])
+	}
+}
+
+func TestToUpper_Nil(t *testing.T) {
+	result := toUpper(nil)
+	if len(result) != 0 {
+		t.Errorf("expected empty slice, got %d", len(result))
+	}
+}
+
+func TestRunEvents_MultipleNamespaces(t *testing.T) {
+	now := time.Now()
+	lister := &fakeLister{
+		events: map[string][]event.Event{
+			"ns1": {{Type: "Warning", Reason: "BackOff", Message: "msg1", Count: 1,
+				LastSeen: now, FirstSeen: now, Age: 0,
+				InvolvedObject: event.InvolvedObject{Kind: "Pod", Name: "a", Namespace: "ns1"}}},
+			"ns2": {{Type: "Normal", Reason: "Pulled", Message: "msg2", Count: 1,
+				LastSeen: now, FirstSeen: now, Age: 0,
+				InvolvedObject: event.InvolvedObject{Kind: "Pod", Name: "b", Namespace: "ns2"}}},
+		},
+	}
+
+	tmpFile, err := os.CreateTemp("", "kube-events-*.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(tmpFile.Name())
+	defer tmpFile.Close()
+
+	f := eventFlags{output: "json", since: "1h", namespaces: []string{"ns1", "ns2"}}
+	if err := runEvents(lister, f, tmpFile); err != nil {
+		t.Fatalf("runEvents(multi-ns) error: %v", err)
+	}
+}
+
+func TestRunEvents_ColorSummaryOnly(t *testing.T) {
+	now := time.Now()
+	lister := &fakeLister{
+		events: map[string][]event.Event{
+			"": {{Type: "Normal", Reason: "Pulled", Message: "Pulled", Count: 1,
+				LastSeen: now, FirstSeen: now, Age: 0,
+				InvolvedObject: event.InvolvedObject{Kind: "Pod", Name: "x", Namespace: "default"}}},
+		},
+	}
+
+	tmpFile, err := os.CreateTemp("", "kube-events-*.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(tmpFile.Name())
+	defer tmpFile.Close()
+
+	f := eventFlags{output: "color", since: "1h", summaryOnly: true}
+	if err := runEvents(lister, f, tmpFile); err != nil {
+		t.Fatalf("runEvents(color-summary) error: %v", err)
+	}
+}
+
+func TestExtractFlags_MissingFlag(t *testing.T) {
+	// A command with no flags registered should fail
+	cmd := &cobra.Command{Use: "test"}
+	_, err := extractFlags(cmd)
+	if err == nil {
+		t.Error("expected error for missing flags")
+	}
+}
+
 func TestFormatAge(t *testing.T) {
 	tests := []struct {
 		d    time.Duration

@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"os"
 	"testing"
 	"time"
 
@@ -191,5 +192,73 @@ func TestNewFromClientset(t *testing.T) {
 	}
 	if c.clientset != fakeCS {
 		t.Error("expected clientset to match")
+	}
+}
+
+func TestNew_InvalidKubeconfig(t *testing.T) {
+	_, err := New("/nonexistent/kubeconfig", "")
+	if err == nil {
+		t.Error("expected error for invalid kubeconfig path")
+	}
+}
+
+func TestNew_InvalidContext(t *testing.T) {
+	tmpFile := t.TempDir() + "/kubeconfig"
+	content := `apiVersion: v1
+kind: Config
+clusters:
+- cluster:
+    server: https://localhost:6443
+  name: test
+contexts:
+- context:
+    cluster: test
+    user: test
+  name: test
+current-context: test
+users:
+- name: test
+  user:
+    token: fake-token
+`
+	if err := os.WriteFile(tmpFile, []byte(content), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	_, err := New(tmpFile, "nonexistent-context")
+	if err == nil {
+		t.Error("expected error for nonexistent context")
+	}
+}
+
+func TestNew_ValidKubeconfig(t *testing.T) {
+	tmpFile := t.TempDir() + "/kubeconfig"
+	content := `apiVersion: v1
+kind: Config
+clusters:
+- cluster:
+    server: https://localhost:6443
+  name: test
+contexts:
+- context:
+    cluster: test
+    user: test
+  name: test
+current-context: test
+users:
+- name: test
+  user:
+    token: fake-token
+`
+	if err := os.WriteFile(tmpFile, []byte(content), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	c, err := New(tmpFile, "test")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if c == nil {
+		t.Error("expected non-nil client")
 	}
 }
