@@ -10,13 +10,13 @@ import (
 )
 
 const (
-	colorRed    = "\033[31m"
-	colorGreen  = "\033[32m"
-	colorYellow = "\033[33m"
-	colorCyan   = "\033[36m"
-	colorGray   = "\033[90m"
-	colorBold   = "\033[1m"
-	colorReset  = "\033[0m"
+	ColorRed    = "\033[31m"
+	ColorGreen  = "\033[32m"
+	ColorYellow = "\033[33m"
+	ColorCyan   = "\033[36m"
+	ColorGray   = "\033[90m"
+	ColorBold   = "\033[1m"
+	ColorReset  = "\033[0m"
 )
 
 // Summary holds grouped events and statistics.
@@ -55,7 +55,7 @@ func (s *Summary) PrintColor(w io.Writer, summaryOnly bool) error {
 	}
 
 	if s.TotalEvents == 0 {
-		fmt.Fprintf(w, "%sNo events found.%s\n", colorGray, colorReset)
+		fmt.Fprintf(w, "%sNo events found.%s\n", ColorGray, ColorReset)
 		return nil
 	}
 
@@ -66,24 +66,24 @@ func (s *Summary) PrintColor(w io.Writer, summaryOnly bool) error {
 
 		nsLabel := ""
 		if g.Key.Namespace != "" {
-			nsLabel = fmt.Sprintf(" %s[%s]%s", colorCyan, g.Key.Namespace, colorReset)
+			nsLabel = fmt.Sprintf(" %s[%s]%s", ColorCyan, g.Key.Namespace, ColorReset)
 		}
 
 		fmt.Fprintf(w, "%s%s/%s%s%s (%d events)\n",
-			colorBold, g.Key.Kind, g.Key.Name, colorReset, nsLabel, len(g.Events))
+			ColorBold, g.Key.Kind, g.Key.Name, ColorReset, nsLabel, len(g.Events))
 
 		for _, e := range g.Events {
-			typeColor := colorGreen
+			typeColor := ColorGreen
 			typeIcon := "  "
 			if e.Type == "Warning" {
-				typeColor = colorYellow
+				typeColor = ColorYellow
 				typeIcon = "! "
 			}
 
-			age := formatAge(e.Age)
+			age := event.FormatAge(e.Age)
 			fmt.Fprintf(w, "  %s%s%-18s%s %s%-8s%s %s\n",
-				typeColor, typeIcon, e.Reason, colorReset,
-				colorGray, age, colorReset,
+				typeColor, typeIcon, e.Reason, ColorReset,
+				ColorGray, age, ColorReset,
 				e.Message)
 		}
 	}
@@ -120,7 +120,7 @@ func (s *Summary) PrintPlain(w io.Writer, summaryOnly bool) error {
 			if e.Type == "Warning" {
 				icon = "! "
 			}
-			age := formatAge(e.Age)
+			age := event.FormatAge(e.Age)
 			fmt.Fprintf(w, "  %s%-18s %-8s %s\n", icon, e.Reason, age, e.Message)
 		}
 	}
@@ -157,7 +157,7 @@ func (s *Summary) PrintJSON(w io.Writer) error {
 				Type:    e.Type,
 				Reason:  e.Reason,
 				Message: e.Message,
-				Age:     formatAge(e.Age),
+				Age:     event.FormatAge(e.Age),
 				Count:   e.Count,
 			})
 		}
@@ -206,7 +206,7 @@ func (s *Summary) PrintMarkdown(w io.Writer) error {
 				resource = fmt.Sprintf("%s/%s [%s]", g.Key.Kind, g.Key.Name, g.Key.Namespace)
 			}
 			fmt.Fprintf(w, "| %s | %s | %s | %s | %s |\n",
-				e.Type, resource, e.Reason, formatAge(e.Age), truncate(e.Message, 80))
+				e.Type, resource, e.Reason, event.FormatAge(e.Age), truncate(e.Message, 80))
 		}
 	}
 	return nil
@@ -224,7 +224,7 @@ func (s *Summary) PrintTable(w io.Writer) error {
 				resource = fmt.Sprintf("[%s] %s/%s", g.Key.Namespace, g.Key.Kind, g.Key.Name)
 			}
 			fmt.Fprintf(w, "%-9s %-40s %-20s %-8s %s\n",
-				e.Type, truncate(resource, 38), truncate(e.Reason, 18), formatAge(e.Age), truncate(e.Message, 50))
+				e.Type, truncate(resource, 38), truncate(e.Reason, 18), event.FormatAge(e.Age), truncate(e.Message, 50))
 		}
 	}
 
@@ -237,12 +237,12 @@ func (s *Summary) PrintTable(w io.Writer) error {
 func (s *Summary) printSummaryLine(w io.Writer, colorize bool) error {
 	if colorize {
 		fmt.Fprintf(w, "%sSummary:%s %d events, %d resources",
-			colorBold, colorReset, s.TotalEvents, s.Resources)
+			ColorBold, ColorReset, s.TotalEvents, s.Resources)
 		if s.WarningCount > 0 {
-			fmt.Fprintf(w, " | %sWarning: %d%s", colorYellow, s.WarningCount, colorReset)
+			fmt.Fprintf(w, " | %sWarning: %d%s", ColorYellow, s.WarningCount, ColorReset)
 		}
 		if s.NormalCount > 0 {
-			fmt.Fprintf(w, " | %sNormal: %d%s", colorGreen, s.NormalCount, colorReset)
+			fmt.Fprintf(w, " | %sNormal: %d%s", ColorGreen, s.NormalCount, ColorReset)
 		}
 		fmt.Fprintln(w)
 	} else {
@@ -252,19 +252,6 @@ func (s *Summary) printSummaryLine(w io.Writer, colorize bool) error {
 	return nil
 }
 
-func formatAge(d interface{ Seconds() float64 }) string {
-	sec := d.Seconds()
-	switch {
-	case sec < 60:
-		return fmt.Sprintf("%ds", int(sec))
-	case sec < 3600:
-		return fmt.Sprintf("%dm", int(sec/60))
-	case sec < 86400:
-		return fmt.Sprintf("%dh", int(sec/3600))
-	default:
-		return fmt.Sprintf("%dd", int(sec/86400))
-	}
-}
 
 func truncate(s string, max int) string {
 	if len(s) <= max {

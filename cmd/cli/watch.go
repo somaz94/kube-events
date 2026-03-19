@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/somaz94/kube-events/internal/event"
 	"github.com/somaz94/kube-events/internal/report"
@@ -88,7 +87,7 @@ func runWatch(f eventFlags) error {
 				continue
 			}
 
-			e := convertWatchEvent(*k8sEvent)
+			e := event.ConvertK8sEvent(*k8sEvent)
 
 			// Apply filters
 			filtered := event.Filter([]event.Event{e}, filterOpts)
@@ -101,34 +100,6 @@ func runWatch(f eventFlags) error {
 	}
 }
 
-func convertWatchEvent(e corev1.Event) event.Event {
-	lastSeen := e.LastTimestamp.Time
-	if lastSeen.IsZero() {
-		lastSeen = e.EventTime.Time
-	}
-	if lastSeen.IsZero() {
-		lastSeen = e.CreationTimestamp.Time
-	}
-
-	return event.Event{
-		Type:    e.Type,
-		Reason:  e.Reason,
-		Message: e.Message,
-		Count:   e.Count,
-		LastSeen:  lastSeen,
-		FirstSeen: e.FirstTimestamp.Time,
-		Age:       time.Since(lastSeen),
-		InvolvedObject: event.InvolvedObject{
-			Kind:      e.InvolvedObject.Kind,
-			Name:      e.InvolvedObject.Name,
-			Namespace: e.InvolvedObject.Namespace,
-		},
-		Source: event.Source{
-			Component: e.Source.Component,
-			Host:      e.Source.Host,
-		},
-	}
-}
 
 func printWatchEvent(w *os.File, e event.Event, format string) {
 	switch format {
@@ -140,36 +111,25 @@ func printWatchEvent(w *os.File, e event.Event, format string) {
 		s := report.NewSummary(groups, []event.Event{e})
 		s.PrintJSON(w)
 	default:
-		typeColor := "\033[32m"
+		typeColor := report.ColorGreen
 		icon := "  "
 		if e.Type == "Warning" {
-			typeColor = "\033[33m"
+			typeColor = report.ColorYellow
 			icon = "! "
 		}
 
 		ns := ""
 		if e.InvolvedObject.Namespace != "" {
-			ns = fmt.Sprintf(" \033[36m[%s]\033[0m", e.InvolvedObject.Namespace)
+			ns = fmt.Sprintf(" %s[%s]%s", report.ColorCyan, e.InvolvedObject.Namespace, report.ColorReset)
 		}
 
-		age := formatWatchAge(e.Age)
-		fmt.Fprintf(w, "%s%s%-18s\033[0m %s%-8s\033[0m \033[1m%s/%s\033[0m%s %s\n",
-			typeColor, icon, e.Reason,
-			"\033[90m", age,
-			e.InvolvedObject.Kind, e.InvolvedObject.Name, ns,
+		age := event.FormatAge(e.Age)
+		fmt.Fprintf(w, "%s%s%-18s%s %s%-8s%s %s%s/%s%s%s %s\n",
+			typeColor, icon, e.Reason, report.ColorReset,
+			report.ColorGray, age, report.ColorReset,
+			report.ColorBold, e.InvolvedObject.Kind, e.InvolvedObject.Name, report.ColorReset, ns,
 			e.Message)
 	}
 }
 
-func formatWatchAge(d time.Duration) string {
-	sec := d.Seconds()
-	switch {
-	case sec < 60:
-		return fmt.Sprintf("%ds", int(sec))
-	case sec < 3600:
-		return fmt.Sprintf("%dm", int(sec/60))
-	default:
-		return fmt.Sprintf("%dh", int(sec/3600))
-	}
-}
 

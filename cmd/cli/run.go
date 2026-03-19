@@ -168,6 +168,9 @@ func runEvents(lister client.EventLister, f eventFlags, w *os.File) error {
 func toUpper(ss []string) []string {
 	result := make([]string, len(ss))
 	for i, s := range ss {
+		if len(s) == 0 {
+			continue
+		}
 		result[i] = strings.ToUpper(s[:1]) + s[1:]
 	}
 	return result

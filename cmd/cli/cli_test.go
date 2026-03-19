@@ -358,7 +358,7 @@ func TestConvertWatchEvent(t *testing.T) {
 		Source: corev1.EventSource{Component: "kubelet", Host: "node-1"},
 	}
 
-	e := convertWatchEvent(k8sEvent)
+	e := event.ConvertK8sEvent(k8sEvent)
 	if e.Type != "Warning" {
 		t.Errorf("expected Warning, got %s", e.Type)
 	}
@@ -377,7 +377,7 @@ func TestConvertWatchEvent_FallbackTimestamps(t *testing.T) {
 	now := time.Now()
 
 	// EventTime fallback
-	e1 := convertWatchEvent(corev1.Event{
+	e1 := event.ConvertK8sEvent(corev1.Event{
 		ObjectMeta: metav1.ObjectMeta{Name: "e1"},
 		EventTime:  metav1.MicroTime{Time: now.Add(-1 * time.Minute)},
 	})
@@ -386,7 +386,7 @@ func TestConvertWatchEvent_FallbackTimestamps(t *testing.T) {
 	}
 
 	// CreationTimestamp fallback
-	e2 := convertWatchEvent(corev1.Event{
+	e2 := event.ConvertK8sEvent(corev1.Event{
 		ObjectMeta: metav1.ObjectMeta{Name: "e2", CreationTimestamp: metav1.Time{Time: now}},
 	})
 	if e2.LastSeen.IsZero() {
@@ -500,7 +500,7 @@ func TestExtractFlags_WithArgs(t *testing.T) {
 	}
 }
 
-func TestFormatWatchAge(t *testing.T) {
+func TestFormatAge(t *testing.T) {
 	tests := []struct {
 		d    time.Duration
 		want string
@@ -508,6 +508,7 @@ func TestFormatWatchAge(t *testing.T) {
 		{30 * time.Second, "30s"},
 		{5 * time.Minute, "5m"},
 		{2 * time.Hour, "2h"},
+		{48 * time.Hour, "2d"},
 		{0, "0s"},
 		{59 * time.Second, "59s"},
 		{60 * time.Second, "1m"},
@@ -515,9 +516,9 @@ func TestFormatWatchAge(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		got := formatWatchAge(tt.d)
+		got := event.FormatAge(tt.d)
 		if got != tt.want {
-			t.Errorf("formatWatchAge(%v) = %q, want %q", tt.d, got, tt.want)
+			t.Errorf("FormatAge(%v) = %q, want %q", tt.d, got, tt.want)
 		}
 	}
 }

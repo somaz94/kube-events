@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/somaz94/kube-events/internal/event"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes/fake"
@@ -118,7 +119,7 @@ func TestConvertEvent_Fields(t *testing.T) {
 		Source: corev1.EventSource{Component: "kubelet", Host: "node-2"},
 	}
 
-	e := convertEvent(k8sEvent)
+	e := event.ConvertK8sEvent(k8sEvent)
 
 	if e.Type != "Warning" {
 		t.Errorf("expected Type=Warning, got %s", e.Type)
@@ -153,7 +154,7 @@ func TestConvertEvent_FallbackTimestamps(t *testing.T) {
 	now := time.Now()
 
 	// EventTime fallback (no LastTimestamp)
-	e1 := convertEvent(corev1.Event{
+	e1 := event.ConvertK8sEvent(corev1.Event{
 		ObjectMeta:     metav1.ObjectMeta{Name: "e1"},
 		EventTime:      metav1.MicroTime{Time: now.Add(-1 * time.Minute)},
 		InvolvedObject: corev1.ObjectReference{Kind: "Pod", Name: "p1"},
@@ -163,7 +164,7 @@ func TestConvertEvent_FallbackTimestamps(t *testing.T) {
 	}
 
 	// CreationTimestamp fallback (no LastTimestamp, no EventTime)
-	e2 := convertEvent(corev1.Event{
+	e2 := event.ConvertK8sEvent(corev1.Event{
 		ObjectMeta:     metav1.ObjectMeta{Name: "e2", CreationTimestamp: metav1.Time{Time: now.Add(-2 * time.Minute)}},
 		InvolvedObject: corev1.ObjectReference{Kind: "Pod", Name: "p2"},
 	})
@@ -172,7 +173,7 @@ func TestConvertEvent_FallbackTimestamps(t *testing.T) {
 	}
 
 	// FirstSeen fallback to LastSeen
-	e3 := convertEvent(corev1.Event{
+	e3 := event.ConvertK8sEvent(corev1.Event{
 		ObjectMeta:     metav1.ObjectMeta{Name: "e3"},
 		LastTimestamp:   metav1.Time{Time: now.Add(-3 * time.Minute)},
 		InvolvedObject: corev1.ObjectReference{Kind: "Pod", Name: "p3"},

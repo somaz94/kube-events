@@ -287,9 +287,9 @@ func TestFormatAge(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		got := formatAge(tt.duration)
+		got := event.FormatAge(tt.duration)
 		if got != tt.want {
-			t.Errorf("formatAge(%v) = %q, want %q", tt.duration, got, tt.want)
+			t.Errorf("FormatAge(%v) = %q, want %q", tt.duration, got, tt.want)
 		}
 	}
 }
