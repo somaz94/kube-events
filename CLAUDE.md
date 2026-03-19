@@ -29,6 +29,7 @@ make demo-clean      # Remove demo resources from cluster
 - **ConvertK8sEvent**: Converts corev1.Event to internal Event (shared by client and watch)
 - **FormatAge**: Formats duration to human-readable short form (5s, 3m, 2h, 1d)
 - **Filter**: Filters events by time, kind, name, type, reason
+- **GroupEvents**: Groups events by resource, namespace, kind, or reason
 - **GroupByResource**: Groups events by involved object (Kind/Name/Namespace)
 - **Report**: Outputs color/plain/json/markdown/table summary
 
@@ -45,6 +46,7 @@ make demo-clean      # Remove demo resources from cluster
 | `--reason` | `-r` | all | Filter by reason (BackOff, Unhealthy, etc.) |
 | `--since` | | `1h` | Show events newer than duration |
 | `--output` | `-o` | `color` | Output format |
+| `--group-by` | `-g` | `resource` | Group by: resource, namespace, kind, reason |
 | `--summary-only` | `-s` | `false` | Summary statistics only |
 | `--all-namespaces` | | `false` | All namespaces |
 | `--watch` | `-w` | `false` | Watch for new events |

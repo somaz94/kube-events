@@ -9,6 +9,7 @@ Hands-on examples for using kube-events against a live cluster.
 - [Quick Demo](#quick-demo)
 - [Basic Examples](#basic-examples)
 - [Filtering Examples](#filtering-examples)
+- [Grouping Examples](#grouping-examples)
 - [Output Format Examples](#output-format-examples)
 - [Watch Mode Examples](#watch-mode-examples)
 - [Troubleshooting Scenarios](#troubleshooting-scenarios)
@@ -130,6 +131,61 @@ kube-events -n production -k Pod -t Warning --since 30m
 
 # BackOff events for a specific app
 kube-events -N my-app -r BackOff -t Warning
+```
+
+<br/>
+
+## Grouping Examples
+
+<br/>
+
+### Group by namespace
+
+```bash
+# See events organized by namespace
+kube-events -g namespace
+
+# Warnings grouped by namespace
+kube-events -g namespace -t Warning
+```
+
+<br/>
+
+### Group by kind
+
+```bash
+# See which resource kinds have events
+kube-events -g kind
+
+# Pod vs Deployment events
+kube-events -g kind --since 30m
+```
+
+<br/>
+
+### Group by reason
+
+```bash
+# Group events by reason for quick pattern detection
+kube-events -g reason
+
+# Warning reasons only
+kube-events -g reason -t Warning
+```
+
+<br/>
+
+### Combine grouping with other flags
+
+```bash
+# Group by namespace, JSON output
+kube-events -g namespace -o json
+
+# Group by reason with table format
+kube-events -g reason -o table
+
+# Group by kind, warnings only, last 30 minutes
+kube-events -g kind -t Warning --since 30m
 ```
 
 <br/>

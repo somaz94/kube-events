@@ -25,6 +25,7 @@ A CLI tool to view and summarize Kubernetes events with resource grouping and wa
 |---|---|---|
 | **Output** | Flat, unsorted list | Resource-grouped, warning-first display |
 | **Highlighting** | None | Color-coded warnings with icons |
+| **Grouping** | None | By resource, namespace, kind, or reason |
 | **Filtering** | Limited (`--field-selector`) | Namespace, kind, name, type, reason |
 | **Time window** | Not supported | `--since 5m`, `1h`, `24h` |
 | **Output formats** | Text only | Color, plain, JSON, Markdown, table |
@@ -90,6 +91,15 @@ kube-events -N api-server
 # Filter by reason
 kube-events -r BackOff,Unhealthy
 
+# Group events by namespace
+kube-events -g namespace
+
+# Group events by kind
+kube-events -g kind
+
+# Group events by reason
+kube-events -g reason
+
 # All namespaces, JSON output
 kube-events --all-namespaces -o json
 
@@ -132,6 +142,7 @@ Summary: 4 events, 2 resources | Warning: 2 | Normal: 2
 | `--reason` | `-r` | all | Event reason (e.g., `BackOff`) |
 | `--since` | | `1h` | Show events newer than duration |
 | `--output` | `-o` | `color` | Format: `color`, `plain`, `json`, `markdown`, `table` |
+| `--group-by` | `-g` | `resource` | Group by: `resource`, `namespace`, `kind`, `reason` |
 | `--summary-only` | `-s` | `false` | Show summary statistics only |
 | `--all-namespaces` | | `false` | Show events from all namespaces |
 | `--watch` | `-w` | `false` | Watch for new events in real-time |

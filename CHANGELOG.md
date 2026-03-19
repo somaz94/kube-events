@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Features
+
+- add `--group-by` / `-g` flag to group events by resource, namespace, kind, or reason
+
+### Tests
+
+- add GroupEvents, ValidGroupBy, and group mode tests across all packages
+
+### Documentation
+
+- update all documentation for `--group-by` feature (README, USAGE, CONFIGURATION, EXAMPLES, CLAUDE.md)
+- add grouping examples and demo phases
+
+<br/>
+
 ## [v0.2.0](https://github.com/somaz94/kube-events/compare/v0.1.1...v0.2.0) (2026-03-19)
 
 ### Code Refactoring

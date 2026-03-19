@@ -49,6 +49,7 @@ kube-events -w
 | `--reason` | `-r` | All | Filter by event reason (e.g., `BackOff`, `Unhealthy`) |
 | `--since` | | `1h` | Show events newer than relative duration |
 | `--output` | `-o` | `color` | Output format: `color`, `plain`, `json`, `markdown`, `table` |
+| `--group-by` | `-g` | `resource` | Group events by: `resource`, `namespace`, `kind`, `reason` |
 | `--summary-only` | `-s` | `false` | Show summary statistics only |
 | `--all-namespaces` | | `false` | Show events from all namespaces |
 | `--watch` | `-w` | `false` | Watch for new events in real-time |
@@ -152,7 +153,7 @@ kube-events -o table
 ```
 
 ```
-TYPE      RESOURCE                                 REASON               AGE      MESSAGE
+TYPE      GROUP                                    REASON               AGE      MESSAGE
 ------------------------------------------------------------------------------------------------------------------------
 Warning   [default] Pod/app-1                      BackOff              2m       Back-off restarting failed container
 Warning   [default] Pod/app-1                      Unhealthy            5m       Readiness probe failed
@@ -226,6 +227,54 @@ kube-events --since 24h    # last 24 hours
 
 ```bash
 kube-events -n production -k Pod -t Warning --since 30m
+```
+
+<br/>
+
+## Grouping
+
+Events can be grouped by different criteria using the `--group-by` / `-g` flag.
+
+<br/>
+
+### By resource (default)
+
+Groups events by the involved Kubernetes resource (Kind/Name/Namespace).
+
+```bash
+kube-events -g resource
+```
+
+<br/>
+
+### By namespace
+
+Groups all events from the same namespace together.
+
+```bash
+kube-events -g namespace
+kube-events -g namespace -t Warning
+```
+
+<br/>
+
+### By kind
+
+Groups events by the involved object kind (Pod, Deployment, etc.).
+
+```bash
+kube-events -g kind
+```
+
+<br/>
+
+### By reason
+
+Groups events by their reason (BackOff, Unhealthy, Scheduled, etc.).
+
+```bash
+kube-events -g reason
+kube-events -g reason -t Warning
 ```
 
 <br/>
