@@ -61,6 +61,18 @@ brews:
       bin.install "kube-events"
     test: |
       system "#{bin}/kube-events", "version"
+    caveats: |
+      🎉 kube-events installed!
+
+      Quick start:
+        kube-events                        # View recent events (last 1h)
+        kube-events -n <namespace>         # Filter by namespace
+        kube-events -t Warning             # Show warnings only
+        kube-events -w                     # Watch events in real-time
+        kube-events -s                     # Summary statistics only
+        kube-events --help                 # Full usage
+
+      Docs: https://github.com/somaz94/kube-events
 
 krews:
   - name: events2
