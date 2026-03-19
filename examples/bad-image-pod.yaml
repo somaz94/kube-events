@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bad-image-app
+  namespace: kube-events-demo
+  labels:
+    app: bad-image-app
+spec:
+  containers:
+    - name: bad
+      image: nginx:this-tag-does-not-exist-999

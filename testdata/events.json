@@ -1,0 +1,54 @@
+{
+  "description": "Sample events fixture for testing. Used by integration tests.",
+  "events": [
+    {
+      "type": "Warning",
+      "reason": "BackOff",
+      "message": "Back-off restarting failed container",
+      "involvedObject": {"kind": "Pod", "name": "app-1", "namespace": "default"},
+      "count": 5
+    },
+    {
+      "type": "Warning",
+      "reason": "Unhealthy",
+      "message": "Readiness probe failed: connection refused",
+      "involvedObject": {"kind": "Pod", "name": "app-1", "namespace": "default"},
+      "count": 12
+    },
+    {
+      "type": "Normal",
+      "reason": "Scheduled",
+      "message": "Successfully assigned default/app-1 to node-1",
+      "involvedObject": {"kind": "Pod", "name": "app-1", "namespace": "default"},
+      "count": 1
+    },
+    {
+      "type": "Normal",
+      "reason": "Pulling",
+      "message": "Pulling image \"nginx:1.27\"",
+      "involvedObject": {"kind": "Pod", "name": "app-2", "namespace": "production"},
+      "count": 1
+    },
+    {
+      "type": "Normal",
+      "reason": "ScalingReplicaSet",
+      "message": "Scaled up replica set api-7f8b9 to 3",
+      "involvedObject": {"kind": "Deployment", "name": "api", "namespace": "production"},
+      "count": 1
+    },
+    {
+      "type": "Warning",
+      "reason": "FailedMount",
+      "message": "Unable to attach or mount volumes: timed out",
+      "involvedObject": {"kind": "Pod", "name": "worker-5d6f7", "namespace": "production"},
+      "count": 3
+    },
+    {
+      "type": "Warning",
+      "reason": "ImagePullBackOff",
+      "message": "Back-off pulling image \"myrepo/app:bad-tag\"",
+      "involvedObject": {"kind": "Pod", "name": "broken-pod", "namespace": "staging"},
+      "count": 8
+    }
+  ]
+}

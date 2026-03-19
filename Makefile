@@ -4,7 +4,7 @@ COMMIT=$(shell git rev-parse --short HEAD 2>/dev/null || echo "none")
 DATE=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 LDFLAGS=-ldflags "-X github.com/somaz94/kube-events/cmd/cli.version=$(VERSION) -X github.com/somaz94/kube-events/cmd/cli.commit=$(COMMIT) -X github.com/somaz94/kube-events/cmd/cli.date=$(DATE)"
 
-.PHONY: build clean test test-unit cover lint fmt vet help
+.PHONY: build clean test test-unit cover lint fmt vet demo demo-clean demo-all help
 
 build: ## Build the binary
 	go build $(LDFLAGS) -o $(BINARY_NAME) ./cmd/main.go
@@ -31,6 +31,14 @@ fmt: ## Format code
 
 vet: ## Run go vet
 	go vet ./...
+
+demo: build ## Run demo (deploy test resources + show events)
+	./scripts/demo.sh
+
+demo-clean: ## Clean up demo resources
+	./scripts/demo-clean.sh
+
+demo-all: demo demo-clean ## Run demo and clean up
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
