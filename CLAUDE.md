@@ -10,9 +10,10 @@ make test            # Run unit tests (alias for test-unit)
 make test-unit       # go test ./... -v -race -cover
 make cover           # Generate coverage report
 make cover-html      # Open coverage in browser
-make lint            # golangci-lint
 make fmt             # go fmt
 make vet             # go vet
+make demo            # Run demo (deploy → compare → detect)
+make demo-clean      # Remove demo resources from cluster
 ```
 
 ## Commit Guidelines
@@ -25,6 +26,8 @@ make vet             # go vet
 
 - **Client**: Uses client-go to fetch events from Kubernetes API
 - **Event**: Normalized event struct with InvolvedObject, Source, Age
+- **ConvertK8sEvent**: Converts corev1.Event to internal Event (shared by client and watch)
+- **FormatAge**: Formats duration to human-readable short form (5s, 3m, 2h, 1d)
 - **Filter**: Filters events by time, kind, name, type, reason
 - **GroupByResource**: Groups events by involved object (Kind/Name/Namespace)
 - **Report**: Outputs color/plain/json/markdown/table summary
@@ -54,6 +57,7 @@ cmd/
   cli/
     root.go            # Cobra root command + global flags
     run.go             # Core execution logic
+    watch.go           # Watch mode implementation
     version.go         # Version subcommand
 internal/
   client/
@@ -61,8 +65,13 @@ internal/
   event/
     types.go           # Event data model
     filter.go          # Filtering and grouping logic
+    convert.go         # K8s event → internal Event conversion
+    format.go          # Duration formatting (FormatAge)
   report/
     summary.go         # Output formatters (color/plain/json/markdown/table)
+scripts/
+  demo.sh             # Demo script (deploy → compare → detect)
+  demo-clean.sh       # Demo cleanup script
 ```
 
 ## Important Rules

@@ -150,14 +150,26 @@ Summary: 4 events, 2 resources | Warning: 2 | Normal: 2
 
 <br/>
 
+## Quick Demo
+
+Run the demo against a live cluster:
+
+```bash
+make demo        # Deploy resources → show events → detect warnings
+make demo-clean  # Remove demo resources from cluster
+```
+
+<br/>
+
 ## Project Structure
 
 ```
 cmd/                    # CLI entry point & Cobra commands
 internal/
   client/               # Kubernetes client wrapper (EventLister interface)
-  event/                # Event model, filtering, grouping
+  event/                # Event model, filtering, grouping, conversion, formatting
   report/               # Color/JSON/Markdown/Table output
+scripts/                # Demo and utility scripts
 ```
 
 <br/>

@@ -6,11 +6,29 @@ Hands-on examples for using kube-events against a live cluster.
 
 ## Table of Contents
 
+- [Quick Demo](#quick-demo)
 - [Basic Examples](#basic-examples)
 - [Filtering Examples](#filtering-examples)
 - [Output Format Examples](#output-format-examples)
 - [Watch Mode Examples](#watch-mode-examples)
 - [Troubleshooting Scenarios](#troubleshooting-scenarios)
+
+<br/>
+
+## Quick Demo
+
+Run the full demo with a single command:
+
+```bash
+make demo        # Deploy resources → show events → detect warnings → all formats
+make demo-clean  # Remove demo resources from cluster
+```
+
+The demo script will:
+1. Create test resources (Pod, Deployment) in a demo namespace
+2. Show events grouped by resource with color output
+3. Demonstrate filtering by type, kind, and reason
+4. Show JSON, Markdown, and summary-only output formats
 
 <br/>
 

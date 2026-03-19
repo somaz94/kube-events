@@ -38,11 +38,16 @@ Guide for building, testing, and contributing to kube-events.
 │       └── cli_test.go            # CLI tests
 ├── internal/
 │   ├── client/
-│   │   └── client.go             # Kubernetes client wrapper
+│   │   ├── client.go             # Kubernetes client wrapper
+│   │   └── client_test.go        # Client tests
 │   ├── event/
 │   │   ├── types.go              # Event, ResourceKey, ResourceGroup models
 │   │   ├── filter.go             # Filter() + GroupByResource()
-│   │   └── filter_test.go        # Filter and grouping tests
+│   │   ├── convert.go            # ConvertK8sEvent() — shared conversion
+│   │   ├── format.go             # FormatAge() — duration formatting
+│   │   ├── filter_test.go        # Filter and grouping tests
+│   │   ├── convert_test.go       # Event conversion tests
+│   │   └── format_test.go        # Duration formatting tests
 │   └── report/
 │       ├── summary.go            # Output formatters (5 formats)
 │       └── summary_test.go       # Report tests
@@ -65,7 +70,7 @@ Guide for building, testing, and contributing to kube-events.
 |-----------|-------------|
 | `cmd/cli/` | Cobra CLI commands and flag definitions |
 | `internal/client/` | Kubernetes client-go wrapper for event fetching |
-| `internal/event/` | Event data model, filtering, and resource grouping |
+| `internal/event/` | Event data model, filtering, grouping, conversion, and formatting |
 | `internal/report/` | Output formatting (color, plain, JSON, markdown, table) |
 
 <br/>
@@ -95,8 +100,9 @@ make cover-html      # Open coverage report in browser
 | Package | Coverage |
 |---------|----------|
 | `internal/event` | 100% |
-| `internal/report` | 97.2% |
-| `cmd/cli` | 24.7% |
+| `internal/report` | 97.0% |
+| `internal/client` | 90.5% |
+| `cmd/cli` | 57.4% (cluster-dependent code excluded) |
 
 <br/>
 
@@ -105,7 +111,7 @@ make cover-html      # Open coverage report in browser
 | Workflow | Trigger | Description |
 |----------|---------|-------------|
 | `ci.yml` | push, PR, dispatch | Unit tests → Build → Version verify |
-| `lint.yml` | dispatch | golangci-lint |
+| `test-e2e.yml` | push, PR, dispatch | E2E tests with kind cluster |
 | `release.yml` | tag push `v*` | GoReleaser (binaries + Homebrew + Krew) |
 | `changelog-generator.yml` | after release, PR merge | Auto-generate CHANGELOG.md |
 | `contributors.yml` | after changelog | Auto-generate CONTRIBUTORS.md |
