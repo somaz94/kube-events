@@ -9,6 +9,7 @@
 A CLI tool to view and summarize Kubernetes events with resource grouping and warning highlighting.
 
 > For detailed documentation, see the [docs/](docs/) folder:
+>
 > [Usage](docs/USAGE.md) |
 > [Configuration](docs/CONFIGURATION.md) |
 > [Examples](docs/EXAMPLES.md) |
