@@ -50,7 +50,7 @@ func sampleGroups() ([]event.ResourceGroup, []event.Event) {
 
 func TestNewSummary(t *testing.T) {
 	groups, events := sampleGroups()
-	s := NewSummary(groups, events)
+	s := NewSummary(groups, events, "resource")
 
 	if s.TotalEvents != 3 {
 		t.Errorf("expected TotalEvents=3, got %d", s.TotalEvents)
@@ -67,7 +67,7 @@ func TestNewSummary(t *testing.T) {
 }
 
 func TestNewSummary_Empty(t *testing.T) {
-	s := NewSummary(nil, nil)
+	s := NewSummary(nil, nil, "")
 
 	if s.TotalEvents != 0 {
 		t.Errorf("expected TotalEvents=0, got %d", s.TotalEvents)
@@ -79,7 +79,7 @@ func TestNewSummary_Empty(t *testing.T) {
 
 func TestPrintColor(t *testing.T) {
 	groups, events := sampleGroups()
-	s := NewSummary(groups, events)
+	s := NewSummary(groups, events, "resource")
 
 	var buf bytes.Buffer
 	err := s.PrintColor(&buf, false)
@@ -115,7 +115,7 @@ func TestPrintColor(t *testing.T) {
 
 func TestPrintColor_SummaryOnly(t *testing.T) {
 	groups, events := sampleGroups()
-	s := NewSummary(groups, events)
+	s := NewSummary(groups, events, "resource")
 
 	var buf bytes.Buffer
 	err := s.PrintColor(&buf, true)
@@ -133,7 +133,7 @@ func TestPrintColor_SummaryOnly(t *testing.T) {
 }
 
 func TestPrintColor_NoEvents(t *testing.T) {
-	s := NewSummary(nil, nil)
+	s := NewSummary(nil, nil, "")
 
 	var buf bytes.Buffer
 	err := s.PrintColor(&buf, false)
@@ -148,7 +148,7 @@ func TestPrintColor_NoEvents(t *testing.T) {
 
 func TestPrintPlain(t *testing.T) {
 	groups, events := sampleGroups()
-	s := NewSummary(groups, events)
+	s := NewSummary(groups, events, "resource")
 
 	var buf bytes.Buffer
 	err := s.PrintPlain(&buf, false)
@@ -173,7 +173,7 @@ func TestPrintPlain(t *testing.T) {
 
 func TestPrintJSON(t *testing.T) {
 	groups, events := sampleGroups()
-	s := NewSummary(groups, events)
+	s := NewSummary(groups, events, "resource")
 
 	var buf bytes.Buffer
 	err := s.PrintJSON(&buf)
@@ -211,7 +211,7 @@ func TestPrintJSON(t *testing.T) {
 
 func TestPrintMarkdown(t *testing.T) {
 	groups, events := sampleGroups()
-	s := NewSummary(groups, events)
+	s := NewSummary(groups, events, "resource")
 
 	var buf bytes.Buffer
 	err := s.PrintMarkdown(&buf)
@@ -237,7 +237,7 @@ func TestPrintMarkdown(t *testing.T) {
 
 func TestPrintTable(t *testing.T) {
 	groups, events := sampleGroups()
-	s := NewSummary(groups, events)
+	s := NewSummary(groups, events, "resource")
 
 	var buf bytes.Buffer
 	err := s.PrintTable(&buf)
@@ -250,8 +250,8 @@ func TestPrintTable(t *testing.T) {
 	if !strings.Contains(out, "TYPE") {
 		t.Error("expected TYPE column header")
 	}
-	if !strings.Contains(out, "RESOURCE") {
-		t.Error("expected RESOURCE column header")
+	if !strings.Contains(out, "GROUP") {
+		t.Error("expected GROUP column header")
 	}
 	if !strings.Contains(out, "REASON") {
 		t.Error("expected REASON column header")
@@ -262,7 +262,7 @@ func TestPrintTable(t *testing.T) {
 }
 
 func TestPrintMarkdown_NoEvents(t *testing.T) {
-	s := NewSummary(nil, nil)
+	s := NewSummary(nil, nil, "")
 
 	var buf bytes.Buffer
 	err := s.PrintMarkdown(&buf)
@@ -272,6 +272,115 @@ func TestPrintMarkdown_NoEvents(t *testing.T) {
 
 	if !strings.Contains(buf.String(), "No events found") {
 		t.Error("expected 'No events found' in empty markdown")
+	}
+}
+
+func TestPrintColor_GroupByNamespace(t *testing.T) {
+	events := []event.Event{
+		newEvent("Warning", "Pod", "app-1", "prod", "BackOff", "back-off", 5*time.Minute),
+		newEvent("Normal", "Pod", "app-2", "staging", "Scheduled", "scheduled", 3*time.Minute),
+	}
+	groups := []event.ResourceGroup{
+		{Key: event.ResourceKey{Label: "prod"}, Events: events[:1]},
+		{Key: event.ResourceKey{Label: "staging"}, Events: events[1:]},
+	}
+	s := NewSummary(groups, events, "namespace")
+
+	var buf bytes.Buffer
+	if err := s.PrintColor(&buf, false); err != nil {
+		t.Fatalf("PrintColor error: %v", err)
+	}
+	out := buf.String()
+	if !strings.Contains(out, "prod") {
+		t.Error("expected 'prod' in output")
+	}
+	if !strings.Contains(out, "staging") {
+		t.Error("expected 'staging' in output")
+	}
+}
+
+func TestPrintPlain_GroupByKind(t *testing.T) {
+	events := []event.Event{
+		newEvent("Warning", "Pod", "app-1", "default", "BackOff", "back-off", 5*time.Minute),
+		newEvent("Normal", "Deployment", "api", "default", "ScalingUp", "scaled", 3*time.Minute),
+	}
+	groups := []event.ResourceGroup{
+		{Key: event.ResourceKey{Label: "Pod"}, Events: events[:1]},
+		{Key: event.ResourceKey{Label: "Deployment"}, Events: events[1:]},
+	}
+	s := NewSummary(groups, events, "kind")
+
+	var buf bytes.Buffer
+	if err := s.PrintPlain(&buf, false); err != nil {
+		t.Fatalf("PrintPlain error: %v", err)
+	}
+	out := buf.String()
+	if !strings.Contains(out, "Pod (1 events)") {
+		t.Error("expected 'Pod (1 events)' in output")
+	}
+}
+
+func TestPrintJSON_GroupByReason(t *testing.T) {
+	events := []event.Event{
+		newEvent("Warning", "Pod", "app-1", "default", "BackOff", "back-off", 5*time.Minute),
+	}
+	groups := []event.ResourceGroup{
+		{Key: event.ResourceKey{Label: "BackOff"}, Events: events},
+	}
+	s := NewSummary(groups, events, "reason")
+
+	var buf bytes.Buffer
+	if err := s.PrintJSON(&buf); err != nil {
+		t.Fatalf("PrintJSON error: %v", err)
+	}
+
+	var parsed map[string]interface{}
+	if err := json.Unmarshal(buf.Bytes(), &parsed); err != nil {
+		t.Fatalf("invalid JSON: %v", err)
+	}
+	groupsJSON := parsed["groups"].([]interface{})
+	first := groupsJSON[0].(map[string]interface{})
+	if first["group"] != "BackOff" {
+		t.Errorf("expected group=BackOff, got %v", first["group"])
+	}
+}
+
+func TestPrintMarkdown_GroupByNamespace(t *testing.T) {
+	events := []event.Event{
+		newEvent("Warning", "Pod", "app-1", "prod", "BackOff", "back-off", 5*time.Minute),
+	}
+	groups := []event.ResourceGroup{
+		{Key: event.ResourceKey{Label: "prod"}, Events: events},
+	}
+	s := NewSummary(groups, events, "namespace")
+
+	var buf bytes.Buffer
+	if err := s.PrintMarkdown(&buf); err != nil {
+		t.Fatalf("PrintMarkdown error: %v", err)
+	}
+	out := buf.String()
+	if !strings.Contains(out, "namespaces") {
+		t.Error("expected 'namespaces' in markdown summary")
+	}
+}
+
+func TestGroupNoun(t *testing.T) {
+	tests := []struct {
+		mode string
+		want string
+	}{
+		{"namespace", "namespaces"},
+		{"kind", "kinds"},
+		{"reason", "reasons"},
+		{"resource", "resources"},
+		{"", "resources"},
+	}
+	for _, tt := range tests {
+		s := NewSummary(nil, nil, tt.mode)
+		got := s.groupNoun()
+		if got != tt.want {
+			t.Errorf("groupNoun(%q) = %q, want %q", tt.mode, got, tt.want)
+		}
 	}
 }
 

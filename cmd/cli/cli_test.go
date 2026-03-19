@@ -98,6 +98,10 @@ func TestExtractFlags_Defaults(t *testing.T) {
 	if output != "color" {
 		t.Errorf("expected default output=color, got %s", output)
 	}
+	groupBy, _ := pf.GetString("group-by")
+	if groupBy != "resource" {
+		t.Errorf("expected default group-by=resource, got %s", groupBy)
+	}
 	summaryOnly, _ := pf.GetBool("summary-only")
 	if summaryOnly {
 		t.Error("expected default summaryOnly=false")
@@ -130,6 +134,7 @@ func TestRootCommandFlags(t *testing.T) {
 		{"summary-only", "s", true},
 		{"all-namespaces", "", false},
 		{"watch", "w", true},
+		{"group-by", "g", true},
 	}
 
 	for _, f := range flags {
@@ -447,6 +452,7 @@ func TestExtractFlags_WithArgs(t *testing.T) {
 	cmd.PersistentFlags().BoolP("summary-only", "s", false, "")
 	cmd.PersistentFlags().Bool("all-namespaces", false, "")
 	cmd.PersistentFlags().BoolP("watch", "w", false, "")
+	cmd.PersistentFlags().StringP("group-by", "g", "resource", "")
 
 	cmd.SetArgs([]string{
 		"--kubeconfig", "/tmp/kc",
@@ -458,6 +464,7 @@ func TestExtractFlags_WithArgs(t *testing.T) {
 		"-r", "BackOff",
 		"--since", "5m",
 		"-o", "json",
+		"-g", "namespace",
 		"-s",
 		"--all-namespaces",
 		"-w",
@@ -489,6 +496,9 @@ func TestExtractFlags_WithArgs(t *testing.T) {
 	if captured.output != "json" {
 		t.Errorf("output = %q, want json", captured.output)
 	}
+	if captured.groupBy != "namespace" {
+		t.Errorf("groupBy = %q, want namespace", captured.groupBy)
+	}
 	if !captured.summaryOnly {
 		t.Error("expected summaryOnly=true")
 	}
@@ -497,6 +507,107 @@ func TestExtractFlags_WithArgs(t *testing.T) {
 	}
 	if !captured.watch {
 		t.Error("expected watch=true")
+	}
+}
+
+func TestRunEvents_GroupByNamespace(t *testing.T) {
+	now := time.Now()
+	lister := &fakeLister{
+		events: map[string][]event.Event{
+			"": {
+				{Type: "Warning", Reason: "BackOff", Message: "back-off", Count: 1,
+					LastSeen: now, FirstSeen: now, Age: 0,
+					InvolvedObject: event.InvolvedObject{Kind: "Pod", Name: "a", Namespace: "prod"}},
+				{Type: "Normal", Reason: "Pulled", Message: "pulled", Count: 1,
+					LastSeen: now, FirstSeen: now, Age: 0,
+					InvolvedObject: event.InvolvedObject{Kind: "Pod", Name: "b", Namespace: "staging"}},
+			},
+		},
+	}
+
+	formats := []string{"color", "plain", "json", "markdown", "table"}
+	for _, format := range formats {
+		t.Run(format, func(t *testing.T) {
+			tmpFile, err := os.CreateTemp("", "kube-events-*.txt")
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer os.Remove(tmpFile.Name())
+			defer tmpFile.Close()
+
+			f := eventFlags{output: format, since: "1h", groupBy: "namespace"}
+			if err := runEvents(lister, f, tmpFile); err != nil {
+				t.Fatalf("runEvents(%s, group-by=namespace) error: %v", format, err)
+			}
+		})
+	}
+}
+
+func TestRunEvents_GroupByKind(t *testing.T) {
+	now := time.Now()
+	lister := &fakeLister{
+		events: map[string][]event.Event{
+			"": {
+				{Type: "Warning", Reason: "BackOff", Message: "back-off", Count: 1,
+					LastSeen: now, FirstSeen: now, Age: 0,
+					InvolvedObject: event.InvolvedObject{Kind: "Pod", Name: "a", Namespace: "default"}},
+				{Type: "Normal", Reason: "ScalingUp", Message: "scaled", Count: 1,
+					LastSeen: now, FirstSeen: now, Age: 0,
+					InvolvedObject: event.InvolvedObject{Kind: "Deployment", Name: "b", Namespace: "default"}},
+			},
+		},
+	}
+
+	tmpFile, err := os.CreateTemp("", "kube-events-*.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(tmpFile.Name())
+	defer tmpFile.Close()
+
+	f := eventFlags{output: "json", since: "1h", groupBy: "kind"}
+	if err := runEvents(lister, f, tmpFile); err != nil {
+		t.Fatalf("runEvents(group-by=kind) error: %v", err)
+	}
+}
+
+func TestRunEvents_GroupByReason(t *testing.T) {
+	now := time.Now()
+	lister := &fakeLister{
+		events: map[string][]event.Event{
+			"": {
+				{Type: "Warning", Reason: "BackOff", Message: "back-off", Count: 1,
+					LastSeen: now, FirstSeen: now, Age: 0,
+					InvolvedObject: event.InvolvedObject{Kind: "Pod", Name: "a", Namespace: "default"}},
+			},
+		},
+	}
+
+	tmpFile, err := os.CreateTemp("", "kube-events-*.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(tmpFile.Name())
+	defer tmpFile.Close()
+
+	f := eventFlags{output: "table", since: "1h", groupBy: "reason"}
+	if err := runEvents(lister, f, tmpFile); err != nil {
+		t.Fatalf("runEvents(group-by=reason) error: %v", err)
+	}
+}
+
+func TestRunEvents_InvalidGroupBy(t *testing.T) {
+	lister := &fakeLister{events: map[string][]event.Event{}}
+	tmpFile, err := os.CreateTemp("", "kube-events-*.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(tmpFile.Name())
+	defer tmpFile.Close()
+
+	f := eventFlags{output: "color", since: "1h", groupBy: "invalid"}
+	if err := runEvents(lister, f, tmpFile); err == nil {
+		t.Error("expected error for invalid group-by, got nil")
 	}
 }
 

@@ -223,6 +223,107 @@ func TestContainsCI(t *testing.T) {
 	}
 }
 
+func TestGroupEvents_Resource(t *testing.T) {
+	events := []Event{
+		newEvent("Warning", "Pod", "app-1", "default", "BackOff", "back-off", 5*time.Minute),
+		newEvent("Normal", "Pod", "app-1", "default", "Scheduled", "scheduled", 10*time.Minute),
+		newEvent("Normal", "Deployment", "api", "prod", "ScalingUp", "scaled", 3*time.Minute),
+	}
+
+	groups := GroupEvents(events, GroupResource)
+	if len(groups) != 2 {
+		t.Fatalf("expected 2 groups, got %d", len(groups))
+	}
+	// Warning group should be first
+	if !hasWarningInGroup(groups[0]) {
+		t.Error("expected first group to have warnings")
+	}
+}
+
+func TestGroupEvents_Namespace(t *testing.T) {
+	events := []Event{
+		newEvent("Warning", "Pod", "app-1", "prod", "BackOff", "back-off", 5*time.Minute),
+		newEvent("Normal", "Pod", "app-2", "prod", "Scheduled", "scheduled", 3*time.Minute),
+		newEvent("Normal", "Deployment", "api", "staging", "ScalingUp", "scaled", 8*time.Minute),
+	}
+
+	groups := GroupEvents(events, GroupNamespace)
+	if len(groups) != 2 {
+		t.Fatalf("expected 2 groups, got %d", len(groups))
+	}
+	// prod has warnings, should be first
+	if groups[0].Key.Label != "prod" {
+		t.Errorf("expected first group label=prod, got %s", groups[0].Key.Label)
+	}
+}
+
+func TestGroupEvents_Kind(t *testing.T) {
+	events := []Event{
+		newEvent("Normal", "Deployment", "api", "default", "ScalingUp", "scaled", 3*time.Minute),
+		newEvent("Warning", "Pod", "app-1", "default", "BackOff", "back-off", 5*time.Minute),
+		newEvent("Normal", "Pod", "app-2", "default", "Scheduled", "scheduled", 8*time.Minute),
+	}
+
+	groups := GroupEvents(events, GroupKind)
+	if len(groups) != 2 {
+		t.Fatalf("expected 2 groups, got %d", len(groups))
+	}
+	// Pod group has warnings, should be first
+	if groups[0].Key.Label != "Pod" {
+		t.Errorf("expected first group label=Pod, got %s", groups[0].Key.Label)
+	}
+}
+
+func TestGroupEvents_Reason(t *testing.T) {
+	events := []Event{
+		newEvent("Warning", "Pod", "app-1", "default", "BackOff", "back-off", 5*time.Minute),
+		newEvent("Warning", "Pod", "app-2", "default", "BackOff", "back-off again", 3*time.Minute),
+		newEvent("Normal", "Pod", "app-3", "default", "Scheduled", "scheduled", 8*time.Minute),
+	}
+
+	groups := GroupEvents(events, GroupReason)
+	if len(groups) != 2 {
+		t.Fatalf("expected 2 groups, got %d", len(groups))
+	}
+	// BackOff has warnings, should be first
+	if groups[0].Key.Label != "BackOff" {
+		t.Errorf("expected first group label=BackOff, got %s", groups[0].Key.Label)
+	}
+	if len(groups[0].Events) != 2 {
+		t.Errorf("expected 2 events in BackOff group, got %d", len(groups[0].Events))
+	}
+}
+
+func TestGroupEvents_ClusterScoped(t *testing.T) {
+	events := []Event{
+		newEvent("Normal", "Node", "node-1", "", "NodeReady", "node is ready", 5*time.Minute),
+	}
+
+	groups := GroupEvents(events, GroupNamespace)
+	if len(groups) != 1 {
+		t.Fatalf("expected 1 group, got %d", len(groups))
+	}
+	if groups[0].Key.Label != "(cluster-scoped)" {
+		t.Errorf("expected label=(cluster-scoped), got %s", groups[0].Key.Label)
+	}
+}
+
+func TestValidGroupBy(t *testing.T) {
+	valid := []string{"", "resource", "namespace", "kind", "reason"}
+	for _, v := range valid {
+		if !ValidGroupBy(v) {
+			t.Errorf("ValidGroupBy(%q) = false, want true", v)
+		}
+	}
+
+	invalid := []string{"invalid", "node", "type"}
+	for _, v := range invalid {
+		if ValidGroupBy(v) {
+			t.Errorf("ValidGroupBy(%q) = true, want false", v)
+		}
+	}
+}
+
 func hasWarningInGroup(g ResourceGroup) bool {
 	for _, e := range g.Events {
 		if e.Type == "Warning" {
