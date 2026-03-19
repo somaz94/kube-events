@@ -2,22 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [v0.2.0](https://github.com/somaz94/kube-events/compare/v0.1.1...v0.2.0) (2026-03-19)
 
-### Refactoring
+### Code Refactoring
 
-- deduplicate event conversion, time formatting, and color constants ([28ea08b](https://github.com/somaz94/kube-events/commit/28ea08b))
-  - Extract `ConvertK8sEvent()` to `internal/event/convert.go`
-  - Extract `FormatAge()` to `internal/event/format.go`
-  - Export color constants in report package
-  - Fix `toUpper()` panic on empty string input
+- deduplicate event conversion, time formatting, and color constants ([28ea08b](https://github.com/somaz94/kube-events/commit/28ea08b9061ddb9a6c1420cc0ff685f94ab5615a))
+
+### Documentation
+
+- update documentation for refactoring and coverage improvements ([4423b03](https://github.com/somaz94/kube-events/commit/4423b036ae8671527d6af4f2b7aa3d769d4eccec))
+- update changelog ([dc30e36](https://github.com/somaz94/kube-events/commit/dc30e364fe2dc26ceb4cdd9a9bfac22dbe83452a))
 
 ### Tests
 
-- improve test coverage across all packages ([55d5517](https://github.com/somaz94/kube-events/commit/55d5517))
-  - `internal/event`: 73.7% → 100%
-  - `internal/client`: 33.3% → 90.5%
-  - `cmd/cli`: 56.1% → 57.4% (cluster-dependent code excluded)
+- improve test coverage across all packages ([55d5517](https://github.com/somaz94/kube-events/commit/55d5517d81de1569df4ebbaf43124826e1c50904))
+
+### Contributors
+
+- somaz
 
 <br/>
 
