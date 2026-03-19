@@ -1,0 +1,6 @@
+kube-events
+dist/
+coverage.out
+*.exe
+.DS_Store
+.env

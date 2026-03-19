@@ -1,0 +1,49 @@
+version: 2
+
+builds:
+  - main: ./cmd/main.go
+    binary: kube-events
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X github.com/somaz94/kube-events/cmd/cli.version={{.Version}}
+      - -X github.com/somaz94/kube-events/cmd/cli.commit={{.Commit}}
+      - -X github.com/somaz94/kube-events/cmd/cli.date={{.Date}}
+
+archives:
+  - formats:
+      - tar.gz
+    format_overrides:
+      - goos: windows
+        formats:
+          - zip
+
+changelog:
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^ci:'
+      - '^chore:'
+
+brews:
+  - repository:
+      owner: somaz94
+      name: homebrew-tap
+    install: |
+      bin.install "kube-events"
+
+krews:
+  - name: events2
+    repository:
+      owner: somaz94
+      name: krew-index
+    description: "View and summarize Kubernetes events with grouping and highlighting"
