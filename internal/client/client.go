@@ -12,9 +12,19 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
+// EventLister defines the interface for listing Kubernetes events.
+type EventLister interface {
+	ListEvents(ctx context.Context, namespace string) ([]event.Event, error)
+}
+
 // Client wraps the Kubernetes clientset for event operations.
 type Client struct {
 	clientset kubernetes.Interface
+}
+
+// NewFromClientset creates a Client from an existing kubernetes.Interface (for testing).
+func NewFromClientset(cs kubernetes.Interface) *Client {
+	return &Client{clientset: cs}
 }
 
 // New creates a new Client using the given kubeconfig and context.

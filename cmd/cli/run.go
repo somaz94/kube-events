@@ -105,14 +105,18 @@ func runRoot(cmd *cobra.Command, args []string) error {
 		return runWatch(f)
 	}
 
-	since, err := parseSince(f.since)
-	if err != nil {
-		return err
-	}
-
 	c, err := client.New(f.kubeconfig, f.kubeContext)
 	if err != nil {
 		return fmt.Errorf("failed to create kubernetes client: %w", err)
+	}
+
+	return runEvents(c, f, os.Stdout)
+}
+
+func runEvents(lister client.EventLister, f eventFlags, w *os.File) error {
+	since, err := parseSince(f.since)
+	if err != nil {
+		return err
 	}
 
 	ctx := context.Background()
@@ -124,7 +128,7 @@ func runRoot(cmd *cobra.Command, args []string) error {
 
 	var allEvents []event.Event
 	for _, ns := range namespaces {
-		events, err := c.ListEvents(ctx, ns)
+		events, err := lister.ListEvents(ctx, ns)
 		if err != nil {
 			return fmt.Errorf("failed to list events in namespace %q: %w", ns, err)
 		}
@@ -147,7 +151,6 @@ func runRoot(cmd *cobra.Command, args []string) error {
 	summary := report.NewSummary(groups, filtered)
 
 	// Output
-	w := os.Stdout
 	switch f.output {
 	case "json":
 		return summary.PrintJSON(w)
