@@ -5,10 +5,14 @@ CLI tool to view and summarize Kubernetes events with resource grouping and warn
 ## Build & Test
 
 ```bash
-make build        # Build binary
-make test         # Run unit tests
-make lint         # Run linter
-make cover        # Coverage report
+make build           # Build binary
+make test            # Run unit tests (alias for test-unit)
+make test-unit       # go test ./... -v -race -cover
+make cover           # Generate coverage report
+make cover-html      # Open coverage in browser
+make lint            # golangci-lint
+make fmt             # go fmt
+make vet             # go vet
 ```
 
 ## Commit Guidelines

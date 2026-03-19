@@ -1,54 +1,39 @@
 # kube-events
 
-A CLI tool to view and summarize Kubernetes events with resource grouping and warning highlighting.
-
 [![CI](https://github.com/somaz94/kube-events/actions/workflows/ci.yml/badge.svg)](https://github.com/somaz94/kube-events/actions/workflows/ci.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/somaz94/kube-events)](https://goreportcard.com/report/github.com/somaz94/kube-events)
-[![License](https://img.shields.io/github/license/somaz94/kube-events)](LICENSE)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![Latest Tag](https://img.shields.io/github/v/tag/somaz94/kube-events)](https://github.com/somaz94/kube-events/tags)
+[![Top Language](https://img.shields.io/github/languages/top/somaz94/kube-events)](https://github.com/somaz94/kube-events)
+
+A CLI tool to view and summarize Kubernetes events with resource grouping and warning highlighting.
+
+> For detailed documentation, see the [docs/](docs/) folder:
+> [Usage](docs/USAGE.md) |
+> [Configuration](docs/CONFIGURATION.md) |
+> [Examples](docs/EXAMPLES.md) |
+> [Deployment](docs/DEPLOYMENT.md) |
+> [Development](docs/DEVELOPMENT.md) |
+> [Use Cases](docs/USE-CASES.md)
 
 <br/>
 
 ## Why kube-events?
 
-`kubectl get events` output is flat, hard to read, and lacks grouping. **kube-events** provides:
-
-- **Resource grouping** — events organized by Pod, Deployment, Service, etc.
-- **Warning highlighting** — warnings sorted first with color-coded output
-- **Time filtering** — show events from the last 5m, 1h, 24h, etc.
-- **Multiple output formats** — color, plain, JSON, Markdown, table
-- **Flexible filtering** — by namespace, kind, name, type, reason
-
-<br/>
-
-### Before (kubectl)
-
-```
-LAST SEEN   TYPE      REASON      OBJECT           MESSAGE
-2m          Warning   BackOff     pod/app-1        Back-off restarting failed container
-5m          Normal    Scheduled   pod/app-1        Successfully assigned...
-3m          Warning   Unhealthy   pod/app-1        Readiness probe failed
-1m          Normal    ScalingUp   deployment/api   Scaled up replica set
-```
+| | `kubectl get events` | `kube-events` |
+|---|---|---|
+| **Output** | Flat, unsorted list | Resource-grouped, warning-first display |
+| **Highlighting** | None | Color-coded warnings with icons |
+| **Filtering** | Limited (`--field-selector`) | Namespace, kind, name, type, reason |
+| **Time window** | Not supported | `--since 5m`, `1h`, `24h` |
+| **Output formats** | Text only | Color, plain, JSON, Markdown, table |
+| **Summary** | Not supported | Event counts, resource counts, warning ratio |
+| **Watch mode** | `--watch` (raw) | Filtered, formatted real-time stream |
+| **CI integration** | Not designed for CI | JSON/Markdown output for pipelines |
 
 <br/>
-
-### After (kube-events)
-
-```
-Pod/app-1 [default] (3 events)
-  ! BackOff            2m       Back-off restarting failed container
-  ! Unhealthy          3m       Readiness probe failed
-    Scheduled          5m       Successfully assigned...
-
-Deployment/api [default] (1 event)
-    ScalingUp          1m       Scaled up replica set
-
-Summary: 4 events, 2 resources | Warning: 2 | Normal: 2
-```
 
 ## Quick Start
-
-<br/>
 
 ### Install
 
@@ -56,16 +41,31 @@ Summary: 4 events, 2 resources | Warning: 2 | Normal: 2
 # Homebrew
 brew install somaz94/tap/kube-events
 
-# Go install
-go install github.com/somaz94/kube-events/cmd@latest
+# Krew (kubectl plugin)
+kubectl krew install events2
 
-# Download binary
-# See https://github.com/somaz94/kube-events/releases
+# Binary
+curl -sL https://github.com/somaz94/kube-events/releases/latest/download/kube-events_linux_amd64.tar.gz | tar xz
+sudo mv kube-events /usr/local/bin/
+
+# From source
+go install github.com/somaz94/kube-events/cmd@latest
 ```
 
-<br/>
+### Upgrade
 
-### Usage
+```bash
+# Homebrew
+brew update && brew upgrade kube-events
+
+# Krew
+kubectl krew upgrade events2
+
+# From source
+go install github.com/somaz94/kube-events/cmd@latest
+```
+
+### Basic Usage
 
 ```bash
 # Show all events from last 1 hour (default)
@@ -97,6 +97,23 @@ kube-events -s
 
 # Combine filters
 kube-events -n prod -k Pod -t Warning --since 30m
+
+# Watch events in real-time
+kube-events -w -n production -t Warning
+```
+
+### Example Output
+
+```
+Pod/app-1 [default] (3 events)
+  ! BackOff            2m       Back-off restarting failed container
+  ! Unhealthy          3m       Readiness probe failed
+    Scheduled          5m       Successfully assigned...
+
+Deployment/api [default] (1 event)
+    ScalingUp          1m       Scaled up replica set
+
+Summary: 4 events, 2 resources | Warning: 2 | Normal: 2
 ```
 
 <br/>
@@ -132,38 +149,24 @@ kube-events -n prod -k Pod -t Warning --since 30m
 
 <br/>
 
-## Comparison with kubectl
+## Project Structure
 
-| Feature | `kubectl get events` | `kube-events` |
-|---------|---------------------|---------------|
-| Resource grouping | No | Yes |
-| Warning highlighting | No | Yes |
-| Color output | No | Yes |
-| Multiple output formats | Limited | 5 formats |
-| Time-based filtering | No | `--since` |
-| Reason filtering | No | `--reason` |
-| Summary statistics | No | Yes |
+```
+cmd/                    # CLI entry point & Cobra commands
+internal/
+  client/               # Kubernetes client wrapper (EventLister interface)
+  event/                # Event model, filtering, grouping
+  report/               # Color/JSON/Markdown/Table output
+```
 
 <br/>
 
-## Development
+## Contributing
 
-```bash
-# Build
-make build
-
-# Run tests
-make test
-
-# Lint
-make lint
-
-# Coverage report
-make cover
-```
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 <br/>
 
 ## License
 
-[Apache License 2.0](LICENSE)
+This project is licensed under the Apache License 2.0 — see the [LICENSE](LICENSE) file for details.
