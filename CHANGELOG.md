@@ -2,20 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [v0.3.0](https://github.com/somaz94/kube-events/compare/v0.2.0...v0.3.0) (2026-03-19)
 
 ### Features
 
-- add `--group-by` / `-g` flag to group events by resource, namespace, kind, or reason
-
-### Tests
-
-- add GroupEvents, ValidGroupBy, and group mode tests across all packages
+- add --group-by flag to group events by resource, namespace, kind, or reason ([35a76c7](https://github.com/somaz94/kube-events/commit/35a76c741d2da2c62d2db3846ccf6c4fe42d0a70))
 
 ### Documentation
 
-- update all documentation for `--group-by` feature (README, USAGE, CONFIGURATION, EXAMPLES, CLAUDE.md)
-- add grouping examples and demo phases
+- update documentation and demo for --group-by feature ([b2b37c2](https://github.com/somaz94/kube-events/commit/b2b37c2b8606f8fd95c45d92d0a3057cad920260))
+- update changelog ([4246f46](https://github.com/somaz94/kube-events/commit/4246f46e2a7ca7b75f61d4eb9b649b5a4ef3977e))
+
+### Tests
+
+- add tests for --group-by feature across all packages ([361a518](https://github.com/somaz94/kube-events/commit/361a5184fbebeeb018b69c4c0a18834b1bf22050))
+
+### Chores
+
+- add --group-by example to brew install caveats ([465c6f3](https://github.com/somaz94/kube-events/commit/465c6f302f0f9583854e7f2f54e571fe64ae2ac7))
+
+### Contributors
+
+- somaz
 
 <br/>
 
