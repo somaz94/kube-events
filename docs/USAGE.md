@@ -57,6 +57,8 @@ kube-events -w
 
 ## Output Formats
 
+<br/>
+
 ### Color (default)
 
 Human-readable output with ANSI color codes. Best for terminal use.
@@ -163,12 +165,16 @@ Total: 3 events, 2 resources (Warning: 2, Normal: 1)
 
 ## Filtering
 
+<br/>
+
 ### By namespace
 
 ```bash
 kube-events -n production
 kube-events -n staging -n production  # multiple namespaces
 ```
+
+<br/>
 
 ### By resource kind
 
@@ -177,12 +183,16 @@ kube-events -k Pod
 kube-events -k Pod,Deployment  # multiple kinds
 ```
 
+<br/>
+
 ### By resource name
 
 ```bash
 kube-events -N api-server
 kube-events -N api-server,worker  # multiple names
 ```
+
+<br/>
 
 ### By event type
 
@@ -191,12 +201,16 @@ kube-events -t Warning
 kube-events -t Normal
 ```
 
+<br/>
+
 ### By event reason
 
 ```bash
 kube-events -r BackOff
 kube-events -r BackOff,Unhealthy,FailedMount
 ```
+
+<br/>
 
 ### Time window
 
@@ -205,6 +219,8 @@ kube-events --since 5m     # last 5 minutes
 kube-events --since 1h     # last 1 hour (default)
 kube-events --since 24h    # last 24 hours
 ```
+
+<br/>
 
 ### Combined filters
 
@@ -235,6 +251,8 @@ Press `Ctrl+C` to stop.
 
 ## CI/CD Integration
 
+<br/>
+
 ### GitHub Actions
 
 ```yaml
@@ -252,6 +270,8 @@ Press `Ctrl+C` to stop.
     REPORT=$(kube-events --since 10m -o markdown)
     gh pr comment ${{ github.event.number }} --body "$REPORT"
 ```
+
+<br/>
 
 ### GitLab CI
 

@@ -88,6 +88,8 @@ make cover           # Generate coverage report
 make cover-html      # Open coverage report in browser
 ```
 
+<br/>
+
 ### Test Coverage
 
 | Package | Coverage |
@@ -111,6 +113,8 @@ make cover-html      # Open coverage report in browser
 | `stale-issues.yml` | daily cron | Auto-close stale issues |
 | `dependabot-auto-merge.yml` | PR (dependabot) | Auto-merge minor/patch updates |
 | `issue-greeting.yml` | issue opened | Welcome message |
+
+<br/>
 
 ### Workflow Chain
 

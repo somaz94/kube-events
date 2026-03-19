@@ -53,6 +53,8 @@ Kubernetes events have two types:
 
 ## Common Event Reasons
 
+<br/>
+
 ### Warning Reasons
 
 | Reason | Kind | Description |
@@ -65,6 +67,8 @@ Kubernetes events have two types:
 | `OOMKilled` | Pod | Container killed due to out-of-memory |
 | `FailedCreate` | ReplicaSet | Cannot create pod |
 | `Evicted` | Pod | Pod evicted from node |
+
+<br/>
 
 ### Normal Reasons
 

@@ -16,6 +16,8 @@ Hands-on examples for using kube-events against a live cluster.
 
 ## Basic Examples
 
+<br/>
+
 ### Show recent events
 
 ```bash
@@ -32,6 +34,8 @@ kube-events --since 24h
 kube-events -s
 ```
 
+<br/>
+
 ### Specific namespace
 
 ```bash
@@ -46,6 +50,8 @@ kube-events --all-namespaces
 
 ## Filtering Examples
 
+<br/>
+
 ### Warning events only
 
 ```bash
@@ -53,6 +59,8 @@ kube-events -t Warning
 kube-events -t Warning --since 30m
 kube-events -t Warning -n production
 ```
+
+<br/>
 
 ### By resource kind
 
@@ -64,6 +72,8 @@ kube-events -k Pod
 kube-events -k Deployment,StatefulSet
 ```
 
+<br/>
+
 ### By resource name
 
 ```bash
@@ -73,6 +83,8 @@ kube-events -N my-app-7f8b9-x2k4p
 # Events for multiple resources
 kube-events -N api-server,worker
 ```
+
+<br/>
 
 ### By reason
 
@@ -90,6 +102,8 @@ kube-events -r FailedScheduling
 kube-events -r BackOff,Unhealthy,FailedMount
 ```
 
+<br/>
+
 ### Combined filters
 
 ```bash
@@ -103,6 +117,8 @@ kube-events -N my-app -r BackOff -t Warning
 <br/>
 
 ## Output Format Examples
+
+<br/>
 
 ### JSON for scripting
 
@@ -120,6 +136,8 @@ kube-events -t Warning -o json | jq '.groups[].name'
 kube-events -o json > events-report.json
 ```
 
+<br/>
+
 ### Markdown for documentation
 
 ```bash
@@ -131,12 +149,16 @@ REPORT=$(kube-events -t Warning -o markdown)
 gh pr comment 123 --body "$REPORT"
 ```
 
+<br/>
+
 ### Table for structured view
 
 ```bash
 kube-events -o table
 kube-events -t Warning -o table
 ```
+
+<br/>
 
 ### Plain for logs
 
@@ -170,6 +192,8 @@ kube-events -w -o json
 
 ## Troubleshooting Scenarios
 
+<br/>
+
 ### CrashLoopBackOff investigation
 
 ```bash
@@ -180,11 +204,15 @@ kube-events -r BackOff -t Warning
 kube-events -n production -r BackOff -k Pod --since 1h
 ```
 
+<br/>
+
 ### Image pull issues
 
 ```bash
 kube-events -r ImagePullBackOff,ErrImagePull -t Warning
 ```
+
+<br/>
 
 ### Node scheduling problems
 
@@ -192,11 +220,15 @@ kube-events -r ImagePullBackOff,ErrImagePull -t Warning
 kube-events -r FailedScheduling -k Pod
 ```
 
+<br/>
+
 ### Volume mount failures
 
 ```bash
 kube-events -r FailedMount,FailedAttachVolume -t Warning
 ```
+
+<br/>
 
 ### Post-deployment health check
 
@@ -207,6 +239,8 @@ kube-events -n my-app-ns --since 5m -t Warning
 # Quick summary
 kube-events -n my-app-ns --since 5m -s
 ```
+
+<br/>
 
 ### Multi-cluster check
 

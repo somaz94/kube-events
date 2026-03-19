@@ -21,6 +21,8 @@ git tag v1.0.0 && git push origin v1.0.0
 
 ## Distribution Channels
 
+<br/>
+
 ### 1. GitHub Releases (Default)
 
 Automatically built by GoReleaser.

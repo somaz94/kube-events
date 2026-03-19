@@ -16,6 +16,8 @@ Real-world scenarios where kube-events helps.
 
 ## Incident Response
 
+<br/>
+
 ### Quick triage during an outage
 
 When pods start crashing, get a fast overview of what's happening:
@@ -49,6 +51,8 @@ kube-events -n production -t Warning --since 24h -o table
 <br/>
 
 ## Post-deployment Monitoring
+
+<br/>
 
 ### Verify deployment health
 
@@ -84,6 +88,8 @@ kube-events -w -n my-app -t Warning
 <br/>
 
 ## Cluster Health Dashboard
+
+<br/>
 
 ### Morning health check
 
@@ -121,6 +127,8 @@ kube-events -k Node --since 1h
 
 ## CI/CD Pipeline Integration
 
+<br/>
+
 ### GitHub Actions post-deploy check
 
 ```yaml
@@ -134,6 +142,8 @@ kube-events -k Node --since 1h
       echo "$EVENTS" | jq '.groups[] | "\(.kind)/\(.name): \(.events[0].reason) - \(.events[0].message)"'
     fi
 ```
+
+<br/>
 
 ### Scheduled cluster audit
 
@@ -160,6 +170,8 @@ jobs:
 
 ## Multi-cluster Operations
 
+<br/>
+
 ### Compare cluster health across environments
 
 ```bash
@@ -169,6 +181,8 @@ echo "=== Staging ===" && kube-events --context staging -t Warning --since 1h -s
 # Production
 echo "=== Production ===" && kube-events --context production -t Warning --since 1h -s
 ```
+
+<br/>
 
 ### Environment-specific monitoring
 
