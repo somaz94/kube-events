@@ -38,12 +38,19 @@ brews:
   - repository:
       owner: somaz94
       name: homebrew-tap
+    homepage: "https://github.com/somaz94/kube-events"
+    description: "View and summarize Kubernetes events with grouping and highlighting"
+    license: "Apache-2.0"
     install: |
       bin.install "kube-events"
+    test: |
+      system "#{bin}/kube-events", "version"
 
 krews:
   - name: events2
     repository:
       owner: somaz94
       name: krew-index
+    homepage: "https://github.com/somaz94/kube-events"
     description: "View and summarize Kubernetes events with grouping and highlighting"
+    short_description: "View and summarize K8s events"
