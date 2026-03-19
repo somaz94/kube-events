@@ -23,6 +23,7 @@ const (
 type Summary struct {
 	Groups       []event.ResourceGroup
 	Events       []event.Event
+	GroupMode    string
 	TotalEvents  int
 	WarningCount int
 	NormalCount  int
@@ -30,10 +31,11 @@ type Summary struct {
 }
 
 // NewSummary creates a Summary from grouped and filtered events.
-func NewSummary(groups []event.ResourceGroup, events []event.Event) *Summary {
+func NewSummary(groups []event.ResourceGroup, events []event.Event, groupMode string) *Summary {
 	s := &Summary{
 		Groups:      groups,
 		Events:      events,
+		GroupMode:   groupMode,
 		TotalEvents: len(events),
 		Resources:   len(groups),
 	}
@@ -46,6 +48,31 @@ func NewSummary(groups []event.ResourceGroup, events []event.Event) *Summary {
 		}
 	}
 	return s
+}
+
+// groupHeader returns the display header for a group based on the grouping mode.
+func (s *Summary) groupHeader(g event.ResourceGroup) string {
+	if s.GroupMode != "" && s.GroupMode != "resource" {
+		return g.Key.Label
+	}
+	if g.Key.Namespace != "" {
+		return fmt.Sprintf("%s/%s [%s]", g.Key.Kind, g.Key.Name, g.Key.Namespace)
+	}
+	return fmt.Sprintf("%s/%s", g.Key.Kind, g.Key.Name)
+}
+
+// groupNoun returns the noun for the group count label.
+func (s *Summary) groupNoun() string {
+	switch s.GroupMode {
+	case "namespace":
+		return "namespaces"
+	case "kind":
+		return "kinds"
+	case "reason":
+		return "reasons"
+	default:
+		return "resources"
+	}
 }
 
 // PrintColor outputs events grouped by resource with ANSI colors.
@@ -64,13 +91,8 @@ func (s *Summary) PrintColor(w io.Writer, summaryOnly bool) error {
 			fmt.Fprintln(w)
 		}
 
-		nsLabel := ""
-		if g.Key.Namespace != "" {
-			nsLabel = fmt.Sprintf(" %s[%s]%s", ColorCyan, g.Key.Namespace, ColorReset)
-		}
-
-		fmt.Fprintf(w, "%s%s/%s%s%s (%d events)\n",
-			ColorBold, g.Key.Kind, g.Key.Name, ColorReset, nsLabel, len(g.Events))
+		fmt.Fprintf(w, "%s%s%s (%d events)\n",
+			ColorBold, s.groupHeader(g), ColorReset, len(g.Events))
 
 		for _, e := range g.Events {
 			typeColor := ColorGreen
@@ -108,12 +130,7 @@ func (s *Summary) PrintPlain(w io.Writer, summaryOnly bool) error {
 			fmt.Fprintln(w)
 		}
 
-		nsLabel := ""
-		if g.Key.Namespace != "" {
-			nsLabel = fmt.Sprintf(" [%s]", g.Key.Namespace)
-		}
-
-		fmt.Fprintf(w, "%s/%s%s (%d events)\n", g.Key.Kind, g.Key.Name, nsLabel, len(g.Events))
+		fmt.Fprintf(w, "%s (%d events)\n", s.groupHeader(g), len(g.Events))
 
 		for _, e := range g.Events {
 			icon := "  "
@@ -151,6 +168,7 @@ func (s *Summary) PrintJSON(w io.Writer) error {
 			Kind:      g.Key.Kind,
 			Name:      g.Key.Name,
 			Namespace: g.Key.Namespace,
+			Group:     g.Key.Label,
 		}
 		for _, e := range g.Events {
 			jg.Events = append(jg.Events, jsonEvent{
@@ -170,9 +188,10 @@ func (s *Summary) PrintJSON(w io.Writer) error {
 }
 
 type jsonGroup struct {
-	Kind      string      `json:"kind"`
-	Name      string      `json:"name"`
+	Kind      string      `json:"kind,omitempty"`
+	Name      string      `json:"name,omitempty"`
 	Namespace string      `json:"namespace,omitempty"`
+	Group     string      `json:"group,omitempty"`
 	Events    []jsonEvent `json:"events"`
 }
 
@@ -188,7 +207,7 @@ type jsonEvent struct {
 func (s *Summary) PrintMarkdown(w io.Writer) error {
 	fmt.Fprintln(w, "## Kubernetes Events Summary")
 	fmt.Fprintln(w)
-	fmt.Fprintf(w, "**%d** events across **%d** resources | ", s.TotalEvents, s.Resources)
+	fmt.Fprintf(w, "**%d** events across **%d** %s | ", s.TotalEvents, s.Resources, s.groupNoun())
 	fmt.Fprintf(w, "Warning: **%d** | Normal: **%d**\n\n", s.WarningCount, s.NormalCount)
 
 	if s.TotalEvents == 0 {
@@ -196,17 +215,14 @@ func (s *Summary) PrintMarkdown(w io.Writer) error {
 		return nil
 	}
 
-	fmt.Fprintln(w, "| Type | Resource | Reason | Age | Message |")
-	fmt.Fprintln(w, "|------|----------|--------|-----|---------|")
+	fmt.Fprintln(w, "| Type | Group | Reason | Age | Message |")
+	fmt.Fprintln(w, "|------|-------|--------|-----|---------|")
 
 	for _, g := range s.Groups {
+		header := s.groupHeader(g)
 		for _, e := range g.Events {
-			resource := fmt.Sprintf("%s/%s", g.Key.Kind, g.Key.Name)
-			if g.Key.Namespace != "" {
-				resource = fmt.Sprintf("%s/%s [%s]", g.Key.Kind, g.Key.Name, g.Key.Namespace)
-			}
 			fmt.Fprintf(w, "| %s | %s | %s | %s | %s |\n",
-				e.Type, resource, e.Reason, event.FormatAge(e.Age), truncate(e.Message, 80))
+				e.Type, header, e.Reason, event.FormatAge(e.Age), truncate(e.Message, 80))
 		}
 	}
 	return nil
@@ -214,17 +230,14 @@ func (s *Summary) PrintMarkdown(w io.Writer) error {
 
 // PrintTable outputs events as an ASCII table.
 func (s *Summary) PrintTable(w io.Writer) error {
-	fmt.Fprintf(w, "%-9s %-40s %-20s %-8s %s\n", "TYPE", "RESOURCE", "REASON", "AGE", "MESSAGE")
+	fmt.Fprintf(w, "%-9s %-40s %-20s %-8s %s\n", "TYPE", "GROUP", "REASON", "AGE", "MESSAGE")
 	fmt.Fprintln(w, strings.Repeat("-", 120))
 
 	for _, g := range s.Groups {
+		header := s.groupHeader(g)
 		for _, e := range g.Events {
-			resource := fmt.Sprintf("%s/%s", g.Key.Kind, g.Key.Name)
-			if g.Key.Namespace != "" {
-				resource = fmt.Sprintf("[%s] %s/%s", g.Key.Namespace, g.Key.Kind, g.Key.Name)
-			}
 			fmt.Fprintf(w, "%-9s %-40s %-20s %-8s %s\n",
-				e.Type, truncate(resource, 38), truncate(e.Reason, 18), event.FormatAge(e.Age), truncate(e.Message, 50))
+				e.Type, truncate(header, 38), truncate(e.Reason, 18), event.FormatAge(e.Age), truncate(e.Message, 50))
 		}
 	}
 

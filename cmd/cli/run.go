@@ -23,6 +23,7 @@ type eventFlags struct {
 	reasons       []string
 	since         string
 	output        string
+	groupBy       string
 	summaryOnly   bool
 	allNamespaces bool
 	watch         bool
@@ -65,6 +66,10 @@ func extractFlags(cmd *cobra.Command) (eventFlags, error) {
 		return f, err
 	}
 	f.output, err = cmd.Flags().GetString("output")
+	if err != nil {
+		return f, err
+	}
+	f.groupBy, err = cmd.Flags().GetString("group-by")
 	if err != nil {
 		return f, err
 	}
@@ -144,11 +149,14 @@ func runEvents(lister client.EventLister, f eventFlags, w *os.File) error {
 		Reasons: f.reasons,
 	})
 
-	// Group by resource
-	groups := event.GroupByResource(filtered)
+	// Validate and apply grouping
+	if !event.ValidGroupBy(f.groupBy) {
+		return fmt.Errorf("invalid --group-by value %q: must be resource, namespace, kind, or reason", f.groupBy)
+	}
+	groups := event.GroupEvents(filtered, event.GroupBy(f.groupBy))
 
 	// Build summary
-	summary := report.NewSummary(groups, filtered)
+	summary := report.NewSummary(groups, filtered, f.groupBy)
 
 	// Output
 	switch f.output {

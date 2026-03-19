@@ -108,7 +108,7 @@ func printWatchEvent(w *os.File, e event.Event, format string) {
 			Key:    event.ResourceKey{Kind: e.InvolvedObject.Kind, Name: e.InvolvedObject.Name, Namespace: e.InvolvedObject.Namespace},
 			Events: []event.Event{e},
 		}}
-		s := report.NewSummary(groups, []event.Event{e})
+		s := report.NewSummary(groups, []event.Event{e}, "resource")
 		s.PrintJSON(w)
 	default:
 		typeColor := report.ColorGreen

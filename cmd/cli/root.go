@@ -29,6 +29,7 @@ func init() {
 
 	// Output flags
 	rootCmd.PersistentFlags().StringP("output", "o", "color", "output format: color, plain, json, markdown, table")
+	rootCmd.PersistentFlags().StringP("group-by", "g", "resource", "group events by: resource, namespace, kind, reason")
 	rootCmd.PersistentFlags().BoolP("summary-only", "s", false, "show summary statistics only")
 	rootCmd.PersistentFlags().Bool("all-namespaces", false, "show events from all namespaces")
 	rootCmd.PersistentFlags().BoolP("watch", "w", false, "watch for new events in real-time")

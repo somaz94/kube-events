@@ -28,11 +28,31 @@ type Source struct {
 	Host      string
 }
 
+// GroupBy defines how events are grouped in output.
+type GroupBy string
+
+const (
+	GroupResource  GroupBy = "resource"
+	GroupNamespace GroupBy = "namespace"
+	GroupKind      GroupBy = "kind"
+	GroupReason    GroupBy = "reason"
+)
+
+// ValidGroupBy returns true if the value is a supported group-by mode.
+func ValidGroupBy(s string) bool {
+	switch GroupBy(s) {
+	case "", GroupResource, GroupNamespace, GroupKind, GroupReason:
+		return true
+	}
+	return false
+}
+
 // ResourceKey uniquely identifies a resource involved in events.
 type ResourceKey struct {
 	Kind      string
 	Name      string
 	Namespace string
+	Label     string // display label for non-resource grouping modes
 }
 
 // ResourceGroup holds events grouped by their involved resource.

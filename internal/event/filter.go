@@ -81,6 +81,54 @@ func GroupByResource(events []Event) []ResourceGroup {
 	return groups
 }
 
+// GroupEvents groups events by the specified mode.
+func GroupEvents(events []Event, mode GroupBy) []ResourceGroup {
+	if mode == GroupResource {
+		return GroupByResource(events)
+	}
+
+	m := make(map[string][]Event)
+	var keys []string
+
+	for _, e := range events {
+		var key string
+		switch mode {
+		case GroupNamespace:
+			key = e.InvolvedObject.Namespace
+			if key == "" {
+				key = "(cluster-scoped)"
+			}
+		case GroupKind:
+			key = e.InvolvedObject.Kind
+		case GroupReason:
+			key = e.Reason
+		}
+		if _, exists := m[key]; !exists {
+			keys = append(keys, key)
+		}
+		m[key] = append(m[key], e)
+	}
+
+	// Sort: groups with warnings first, then by newest event
+	sort.Slice(keys, func(i, j int) bool {
+		iWarn := hasWarning(m[keys[i]])
+		jWarn := hasWarning(m[keys[j]])
+		if iWarn != jWarn {
+			return iWarn
+		}
+		return m[keys[i]][0].LastSeen.After(m[keys[j]][0].LastSeen)
+	})
+
+	groups := make([]ResourceGroup, len(keys))
+	for i, key := range keys {
+		groups[i] = ResourceGroup{
+			Key:    ResourceKey{Label: key},
+			Events: m[key],
+		}
+	}
+	return groups
+}
+
 func hasWarning(events []Event) bool {
 	for _, e := range events {
 		if e.Type == "Warning" {
