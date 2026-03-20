@@ -43,6 +43,10 @@ A CLI tool to view and summarize Kubernetes events with resource grouping and wa
 # Homebrew
 brew install somaz94/tap/kube-events
 
+# Scoop (Windows)
+scoop bucket add somaz94 https://github.com/somaz94/scoop-bucket
+scoop install kube-events
+
 # Krew (kubectl plugin)
 kubectl krew install events2
 
@@ -64,6 +68,9 @@ go install github.com/somaz94/kube-events/cmd@latest
 # Homebrew
 brew update && brew upgrade kube-events
 
+# Scoop
+scoop update kube-events
+
 # Krew
 kubectl krew upgrade events2
 
@@ -76,6 +83,9 @@ go install github.com/somaz94/kube-events/cmd@latest
 ```bash
 # Homebrew
 brew uninstall kube-events
+
+# Scoop
+scoop uninstall kube-events
 
 # Krew
 kubectl krew uninstall events2

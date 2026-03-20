@@ -75,6 +75,14 @@ brews:
 
       Docs: https://github.com/somaz94/kube-events
 
+scoops:
+  - repository:
+      owner: somaz94
+      name: scoop-bucket
+    homepage: "https://github.com/somaz94/kube-events"
+    description: "View and summarize Kubernetes events with grouping and highlighting"
+    license: "Apache-2.0"
+
 krews:
   - name: events2
     repository:
