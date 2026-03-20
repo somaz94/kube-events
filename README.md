@@ -46,8 +46,12 @@ brew install somaz94/tap/kube-events
 # Krew (kubectl plugin)
 kubectl krew install events2
 
-# Binary
+# Binary (latest)
 curl -sL https://github.com/somaz94/kube-events/releases/latest/download/kube-events_linux_amd64.tar.gz | tar xz
+sudo mv kube-events /usr/local/bin/
+
+# Binary (specific version)
+curl -sL https://github.com/somaz94/kube-events/releases/download/v0.1.0/kube-events_0.1.0_linux_amd64.tar.gz | tar xz
 sudo mv kube-events /usr/local/bin/
 
 # From source
