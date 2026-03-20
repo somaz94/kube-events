@@ -67,6 +67,19 @@ kubectl krew upgrade events2
 go install github.com/somaz94/kube-events/cmd@latest
 ```
 
+### Uninstall
+
+```bash
+# Homebrew
+brew uninstall kube-events
+
+# Krew
+kubectl krew uninstall events2
+
+# Manual
+sudo rm /usr/local/bin/kube-events
+```
+
 ### Basic Usage
 
 ```bash
