@@ -16,11 +16,6 @@ make demo            # Run demo (deploy → compare → detect)
 make demo-clean      # Remove demo resources from cluster
 ```
 
-- Do not include `Co-Authored-By` lines in commit messages.
-- Use Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `ci:`, `chore:`)
-- Do not push to remote. Only commit. The user will push manually.
-- Do not modify git config.
-
 ## Key Concepts
 
 - **Client**: Uses client-go to fetch events from Kubernetes API
@@ -81,6 +76,3 @@ scripts/
   - `README.md` — Quick Start, 설치 방법
   - `CHANGELOG.md` — Unreleased 섹션에 변경사항 추가
   - `CLAUDE.md` — Key Concepts, CLI Flags 테이블
-
-- Communicate with the user in Korean.
-- All documentation and code comments must be written in English.
