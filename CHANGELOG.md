@@ -2,6 +2,40 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.3.1](https://github.com/somaz94/kube-events/compare/v0.3.0...v0.3.1) (2026-04-03)
+
+### Features
+
+- add branch and pr workflow targets to Makefile ([aa6d73c](https://github.com/somaz94/kube-events/commit/aa6d73cd7fb8e6f18879181c0fca0dd30ecb87ae))
+- add Scoop bucket support for Windows distribution ([d438872](https://github.com/somaz94/kube-events/commit/d4388725476d647f27f50fe1b91240ca74c7dee8))
+
+### Code Refactoring
+
+- extract shared helpers, fix truncate boundary and parseSince error handling ([edf1c70](https://github.com/somaz94/kube-events/commit/edf1c70cad5ff390964791e89b6bf24e09ad1199))
+
+### Documentation
+
+- remove duplicate rules covered by global CLAUDE.md ([a634092](https://github.com/somaz94/kube-events/commit/a634092457e645f600192b46d44ebcba689e4f1a))
+- add specific version install instructions to README ([a5fa59f](https://github.com/somaz94/kube-events/commit/a5fa59ffbcdc3928d409949e62001e07d0c6e54d))
+- add Uninstall section to README ([5a7258a](https://github.com/somaz94/kube-events/commit/5a7258a6969df5e08dced6df0183899470835d2d))
+
+### Continuous Integration
+
+- add changelog category groups in goreleaser config ([32cd04a](https://github.com/somaz94/kube-events/commit/32cd04abf3d33505e5d07fcf2a00112a1726f657))
+- add auto-generated PR body script for make pr ([5d83c2f](https://github.com/somaz94/kube-events/commit/5d83c2fe87b056fe6b0c3f3cec0c712d3aa8ae59))
+
+### Chores
+
+- remove duplicate rules from CLAUDE.md (moved to global) ([03a5efe](https://github.com/somaz94/kube-events/commit/03a5efee42a4c7101967973aada59cbd1f0da235))
+- add git config protection to CLAUDE.md ([4957413](https://github.com/somaz94/kube-events/commit/49574137de4d9f5d304b2b7e96b1e88b31ecea06))
+- **deps:** bump the go-minor group with 3 updates (#1) ([#1](https://github.com/somaz94/kube-events/pull/1)) ([c1c6221](https://github.com/somaz94/kube-events/commit/c1c6221ee7a1ebbc0f2fd824211dcdc9a3431c79))
+
+### Contributors
+
+- somaz
+
+<br/>
+
 ## [v0.3.0](https://github.com/somaz94/kube-events/compare/v0.2.0...v0.3.0) (2026-03-19)
 
 ### Features
@@ -11,7 +45,6 @@ All notable changes to this project will be documented in this file.
 ### Documentation
 
 - update documentation and demo for --group-by feature ([b2b37c2](https://github.com/somaz94/kube-events/commit/b2b37c2b8606f8fd95c45d92d0a3057cad920260))
-- update changelog ([4246f46](https://github.com/somaz94/kube-events/commit/4246f46e2a7ca7b75f61d4eb9b649b5a4ef3977e))
 
 ### Tests
 
@@ -36,7 +69,6 @@ All notable changes to this project will be documented in this file.
 ### Documentation
 
 - update documentation for refactoring and coverage improvements ([4423b03](https://github.com/somaz94/kube-events/commit/4423b036ae8671527d6af4f2b7aa3d769d4eccec))
-- update changelog ([dc30e36](https://github.com/somaz94/kube-events/commit/dc30e364fe2dc26ceb4cdd9a9bfac22dbe83452a))
 
 ### Tests
 
@@ -62,7 +94,6 @@ All notable changes to this project will be documented in this file.
 
 - README.md ([b05bc61](https://github.com/somaz94/kube-events/commit/b05bc619eec15500794ef32f339804564433aa81))
 - add no-push rule to CLAUDE.md ([cc72819](https://github.com/somaz94/kube-events/commit/cc72819b85913c24431c5e0d0c3e02eac7fe0b4c))
-- update changelog ([340200a](https://github.com/somaz94/kube-events/commit/340200a52417d43d1dd488d692a74dde3f0a6baa))
 
 ### Continuous Integration
 
