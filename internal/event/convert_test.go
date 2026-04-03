@@ -11,11 +11,11 @@ import (
 func TestConvertK8sEvent_AllFields(t *testing.T) {
 	now := time.Now()
 	k8sEvent := corev1.Event{
-		ObjectMeta: metav1.ObjectMeta{Name: "evt-1", Namespace: "default"},
-		Type:       "Warning",
-		Reason:     "BackOff",
-		Message:    "Back-off restarting",
-		Count:      3,
+		ObjectMeta:     metav1.ObjectMeta{Name: "evt-1", Namespace: "default"},
+		Type:           "Warning",
+		Reason:         "BackOff",
+		Message:        "Back-off restarting",
+		Count:          3,
 		LastTimestamp:  metav1.Time{Time: now.Add(-2 * time.Minute)},
 		FirstTimestamp: metav1.Time{Time: now.Add(-5 * time.Minute)},
 		InvolvedObject: corev1.ObjectReference{
@@ -92,7 +92,7 @@ func TestConvertK8sEvent_FirstSeenFallback(t *testing.T) {
 	now := time.Now()
 	e := ConvertK8sEvent(corev1.Event{
 		ObjectMeta:    metav1.ObjectMeta{Name: "e3"},
-		LastTimestamp:  metav1.Time{Time: now.Add(-3 * time.Minute)},
+		LastTimestamp: metav1.Time{Time: now.Add(-3 * time.Minute)},
 	})
 	if e.FirstSeen.IsZero() {
 		t.Error("expected FirstSeen fallback to LastSeen")

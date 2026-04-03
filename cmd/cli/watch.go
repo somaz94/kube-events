@@ -7,29 +7,19 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/somaz94/kube-events/internal/client"
 	"github.com/somaz94/kube-events/internal/event"
 	"github.com/somaz94/kube-events/internal/report"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
 )
 
 func runWatch(f eventFlags) error {
-	rules := clientcmd.NewDefaultClientConfigLoadingRules()
-	if f.kubeconfig != "" {
-		rules.ExplicitPath = f.kubeconfig
-	}
-
-	overrides := &clientcmd.ConfigOverrides{}
-	if f.kubeContext != "" {
-		overrides.CurrentContext = f.kubeContext
-	}
-
-	config, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(rules, overrides).ClientConfig()
+	config, err := client.LoadKubeConfig(f.kubeconfig, f.kubeContext)
 	if err != nil {
-		return fmt.Errorf("failed to load kubeconfig: %w", err)
+		return err
 	}
 
 	cs, err := kubernetes.NewForConfig(config)
@@ -59,7 +49,10 @@ func runWatch(f eventFlags) error {
 	}
 	defer watcher.Stop()
 
-	since, _ := parseSince(f.since)
+	since, err := parseSince(f.since)
+	if err != nil {
+		return fmt.Errorf("invalid --since value: %w", err)
+	}
 	filterOpts := event.FilterOptions{
 		Since:   since,
 		Kinds:   f.kinds,
@@ -100,7 +93,6 @@ func runWatch(f eventFlags) error {
 	}
 }
 
-
 func printWatchEvent(w *os.File, e event.Event, format string) {
 	switch format {
 	case "json":
@@ -111,12 +103,7 @@ func printWatchEvent(w *os.File, e event.Event, format string) {
 		s := report.NewSummary(groups, []event.Event{e}, "resource")
 		s.PrintJSON(w)
 	default:
-		typeColor := report.ColorGreen
-		icon := "  "
-		if e.Type == "Warning" {
-			typeColor = report.ColorYellow
-			icon = "! "
-		}
+		typeColor, icon := report.EventStyle(e.Type)
 
 		ns := ""
 		if e.InvolvedObject.Namespace != "" {
@@ -131,5 +118,3 @@ func printWatchEvent(w *os.File, e event.Event, format string) {
 			e.Message)
 	}
 }
-
-

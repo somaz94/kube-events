@@ -64,15 +64,7 @@ func GroupByResource(events []Event) []ResourceGroup {
 		m[key] = append(m[key], e)
 	}
 
-	// Sort groups: resources with warnings first, then by newest event
-	sort.Slice(keys, func(i, j int) bool {
-		iWarn := hasWarning(m[keys[i]])
-		jWarn := hasWarning(m[keys[j]])
-		if iWarn != jWarn {
-			return iWarn
-		}
-		return m[keys[i]][0].LastSeen.After(m[keys[j]][0].LastSeen)
-	})
+	sortGroupKeys(m, keys)
 
 	groups := make([]ResourceGroup, len(keys))
 	for i, key := range keys {
@@ -109,15 +101,7 @@ func GroupEvents(events []Event, mode GroupBy) []ResourceGroup {
 		m[key] = append(m[key], e)
 	}
 
-	// Sort: groups with warnings first, then by newest event
-	sort.Slice(keys, func(i, j int) bool {
-		iWarn := hasWarning(m[keys[i]])
-		jWarn := hasWarning(m[keys[j]])
-		if iWarn != jWarn {
-			return iWarn
-		}
-		return m[keys[i]][0].LastSeen.After(m[keys[j]][0].LastSeen)
-	})
+	sortGroupKeys(m, keys)
 
 	groups := make([]ResourceGroup, len(keys))
 	for i, key := range keys {
@@ -127,6 +111,18 @@ func GroupEvents(events []Event, mode GroupBy) []ResourceGroup {
 		}
 	}
 	return groups
+}
+
+// sortGroupKeys sorts keys so groups with warnings come first, then by newest event.
+func sortGroupKeys[K comparable](m map[K][]Event, keys []K) {
+	sort.Slice(keys, func(i, j int) bool {
+		iWarn := hasWarning(m[keys[i]])
+		jWarn := hasWarning(m[keys[j]])
+		if iWarn != jWarn {
+			return iWarn
+		}
+		return m[keys[i]][0].LastSeen.After(m[keys[j]][0].LastSeen)
+	})
 }
 
 func hasWarning(events []Event) bool {

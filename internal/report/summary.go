@@ -19,6 +19,14 @@ const (
 	ColorReset  = "\033[0m"
 )
 
+// EventStyle returns the ANSI color and icon for the given event type.
+func EventStyle(eventType string) (color, icon string) {
+	if eventType == "Warning" {
+		return ColorYellow, "! "
+	}
+	return ColorGreen, "  "
+}
+
 // Summary holds grouped events and statistics.
 type Summary struct {
 	Groups       []event.ResourceGroup
@@ -95,12 +103,7 @@ func (s *Summary) PrintColor(w io.Writer, summaryOnly bool) error {
 			ColorBold, s.groupHeader(g), ColorReset, len(g.Events))
 
 		for _, e := range g.Events {
-			typeColor := ColorGreen
-			typeIcon := "  "
-			if e.Type == "Warning" {
-				typeColor = ColorYellow
-				typeIcon = "! "
-			}
+			typeColor, typeIcon := EventStyle(e.Type)
 
 			age := event.FormatAge(e.Age)
 			fmt.Fprintf(w, "  %s%s%-18s%s %s%-8s%s %s\n",
@@ -133,10 +136,7 @@ func (s *Summary) PrintPlain(w io.Writer, summaryOnly bool) error {
 		fmt.Fprintf(w, "%s (%d events)\n", s.groupHeader(g), len(g.Events))
 
 		for _, e := range g.Events {
-			icon := "  "
-			if e.Type == "Warning" {
-				icon = "! "
-			}
+			_, icon := EventStyle(e.Type)
 			age := event.FormatAge(e.Age)
 			fmt.Fprintf(w, "  %s%-18s %-8s %s\n", icon, e.Reason, age, e.Message)
 		}
@@ -265,10 +265,12 @@ func (s *Summary) printSummaryLine(w io.Writer, colorize bool) error {
 	return nil
 }
 
-
 func truncate(s string, max int) string {
 	if len(s) <= max {
 		return s
+	}
+	if max < 4 {
+		return s[:max]
 	}
 	return s[:max-3] + "..."
 }

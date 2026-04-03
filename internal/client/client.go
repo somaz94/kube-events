@@ -7,7 +7,6 @@ import (
 	"github.com/somaz94/kube-events/internal/event"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
 )
 
 // EventLister defines the interface for listing Kubernetes events.
@@ -27,19 +26,9 @@ func NewFromClientset(cs kubernetes.Interface) *Client {
 
 // New creates a new Client using the given kubeconfig and context.
 func New(kubeconfig, kubeContext string) (*Client, error) {
-	rules := clientcmd.NewDefaultClientConfigLoadingRules()
-	if kubeconfig != "" {
-		rules.ExplicitPath = kubeconfig
-	}
-
-	overrides := &clientcmd.ConfigOverrides{}
-	if kubeContext != "" {
-		overrides.CurrentContext = kubeContext
-	}
-
-	config, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(rules, overrides).ClientConfig()
+	config, err := LoadKubeConfig(kubeconfig, kubeContext)
 	if err != nil {
-		return nil, fmt.Errorf("failed to load kubeconfig: %w", err)
+		return nil, err
 	}
 
 	cs, err := kubernetes.NewForConfig(config)

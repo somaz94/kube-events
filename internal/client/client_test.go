@@ -16,12 +16,12 @@ func TestListEvents(t *testing.T) {
 	now := time.Now()
 	fakeCS := fake.NewSimpleClientset(
 		&corev1.Event{
-			ObjectMeta: metav1.ObjectMeta{Name: "evt-1", Namespace: "default"},
-			Type:       "Warning",
-			Reason:     "BackOff",
-			Message:    "Back-off restarting failed container",
-			Count:      3,
-			LastTimestamp: metav1.Time{Time: now.Add(-5 * time.Minute)},
+			ObjectMeta:     metav1.ObjectMeta{Name: "evt-1", Namespace: "default"},
+			Type:           "Warning",
+			Reason:         "BackOff",
+			Message:        "Back-off restarting failed container",
+			Count:          3,
+			LastTimestamp:  metav1.Time{Time: now.Add(-5 * time.Minute)},
 			FirstTimestamp: metav1.Time{Time: now.Add(-10 * time.Minute)},
 			InvolvedObject: corev1.ObjectReference{
 				Kind:      "Pod",
@@ -31,12 +31,12 @@ func TestListEvents(t *testing.T) {
 			Source: corev1.EventSource{Component: "kubelet", Host: "node-1"},
 		},
 		&corev1.Event{
-			ObjectMeta: metav1.ObjectMeta{Name: "evt-2", Namespace: "default"},
-			Type:       "Normal",
-			Reason:     "Scheduled",
-			Message:    "Successfully assigned default/app-1 to node-1",
-			Count:      1,
-			LastTimestamp: metav1.Time{Time: now.Add(-8 * time.Minute)},
+			ObjectMeta:     metav1.ObjectMeta{Name: "evt-2", Namespace: "default"},
+			Type:           "Normal",
+			Reason:         "Scheduled",
+			Message:        "Successfully assigned default/app-1 to node-1",
+			Count:          1,
+			LastTimestamp:  metav1.Time{Time: now.Add(-8 * time.Minute)},
 			FirstTimestamp: metav1.Time{Time: now.Add(-8 * time.Minute)},
 			InvolvedObject: corev1.ObjectReference{
 				Kind:      "Pod",
@@ -45,11 +45,11 @@ func TestListEvents(t *testing.T) {
 			},
 		},
 		&corev1.Event{
-			ObjectMeta: metav1.ObjectMeta{Name: "evt-3", Namespace: "production"},
-			Type:       "Normal",
-			Reason:     "Pulling",
-			Message:    "Pulling image nginx:1.27",
-			Count:      1,
+			ObjectMeta:    metav1.ObjectMeta{Name: "evt-3", Namespace: "production"},
+			Type:          "Normal",
+			Reason:        "Pulling",
+			Message:       "Pulling image nginx:1.27",
+			Count:         1,
 			LastTimestamp: metav1.Time{Time: now.Add(-2 * time.Minute)},
 			InvolvedObject: corev1.ObjectReference{
 				Kind:      "Pod",
@@ -105,11 +105,11 @@ func TestListEvents_Empty(t *testing.T) {
 func TestConvertEvent_Fields(t *testing.T) {
 	now := time.Now()
 	k8sEvent := corev1.Event{
-		ObjectMeta: metav1.ObjectMeta{Name: "evt-1", Namespace: "default"},
-		Type:       "Warning",
-		Reason:     "Unhealthy",
-		Message:    "Readiness probe failed",
-		Count:      5,
+		ObjectMeta:     metav1.ObjectMeta{Name: "evt-1", Namespace: "default"},
+		Type:           "Warning",
+		Reason:         "Unhealthy",
+		Message:        "Readiness probe failed",
+		Count:          5,
 		LastTimestamp:  metav1.Time{Time: now.Add(-3 * time.Minute)},
 		FirstTimestamp: metav1.Time{Time: now.Add(-10 * time.Minute)},
 		InvolvedObject: corev1.ObjectReference{
@@ -176,7 +176,7 @@ func TestConvertEvent_FallbackTimestamps(t *testing.T) {
 	// FirstSeen fallback to LastSeen
 	e3 := event.ConvertK8sEvent(corev1.Event{
 		ObjectMeta:     metav1.ObjectMeta{Name: "e3"},
-		LastTimestamp:   metav1.Time{Time: now.Add(-3 * time.Minute)},
+		LastTimestamp:  metav1.Time{Time: now.Add(-3 * time.Minute)},
 		InvolvedObject: corev1.ObjectReference{Kind: "Pod", Name: "p3"},
 	})
 	if e3.FirstSeen.IsZero() {

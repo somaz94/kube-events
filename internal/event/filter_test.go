@@ -7,10 +7,10 @@ import (
 
 func newEvent(typ, kind, name, ns, reason, msg string, age time.Duration) Event {
 	return Event{
-		Type:    typ,
-		Reason:  reason,
-		Message: msg,
-		Count:   1,
+		Type:      typ,
+		Reason:    reason,
+		Message:   msg,
+		Count:     1,
 		LastSeen:  time.Now().Add(-age),
 		FirstSeen: time.Now().Add(-age),
 		Age:       age,
