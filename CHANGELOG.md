@@ -2,10 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased (2026-04-10)
+## Unreleased (2026-04-17)
 
 ### Chores
 
+- **deps:** bump the go-minor group with 3 updates (#3) ([#3](https://github.com/somaz94/kube-events/pull/3)) ([4401033](https://github.com/somaz94/kube-events/commit/440103378a19c22fb247cf45576cf14147f51b76))
+- **deps:** bump actions/github-script from 8 to 9 ([41e8401](https://github.com/somaz94/kube-events/commit/41e8401707fe3b74aaf36384f84b085688bbe093))
 - **deps:** bump dependabot/fetch-metadata from 2 to 3 ([45589c7](https://github.com/somaz94/kube-events/commit/45589c74f7882da153de51a66db3a6874db1f98f))
 
 <br/>
