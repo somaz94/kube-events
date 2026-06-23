@@ -2,13 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased (2026-04-17)
+## Unreleased (2026-06-23)
+
+### Documentation
+
+- document DCO sign-off requirement in CONTRIBUTING ([40c53df](https://github.com/somaz94/kube-events/commit/40c53dfefb2b5c9214cb8226f82b4f0ededdf372))
+
+### Continuous Integration
+
+- add DCO check via shared reusable workflow ([21f128b](https://github.com/somaz94/kube-events/commit/21f128bee7570573aac343651b1db5576b71fc18))
+- add concurrency guards to recurring workflows ([e61314b](https://github.com/somaz94/kube-events/commit/e61314bd2dd8ed47e93e58c2ce5a808543d9de65))
 
 ### Chores
 
+- **deps:** bump the go-minor group with 3 updates (#8) ([#8](https://github.com/somaz94/kube-events/pull/8)) ([99e903a](https://github.com/somaz94/kube-events/commit/99e903a426e07476c2bc167e40ed255e3c69fbe5))
+- **deps:** bump the go-minor group with 3 updates (#6) ([#6](https://github.com/somaz94/kube-events/pull/6)) ([d4e3908](https://github.com/somaz94/kube-events/commit/d4e3908ce2952cf3d11910201dccc6801cb7d25c))
+- **deps:** bump the go-minor group with 3 updates (#5) ([#5](https://github.com/somaz94/kube-events/pull/5)) ([e417e39](https://github.com/somaz94/kube-events/commit/e417e3975ecfbbc233de53c799e25d05a2b0a186))
 - **deps:** bump the go-minor group with 3 updates (#3) ([#3](https://github.com/somaz94/kube-events/pull/3)) ([4401033](https://github.com/somaz94/kube-events/commit/440103378a19c22fb247cf45576cf14147f51b76))
 - **deps:** bump actions/github-script from 8 to 9 ([41e8401](https://github.com/somaz94/kube-events/commit/41e8401707fe3b74aaf36384f84b085688bbe093))
 - **deps:** bump dependabot/fetch-metadata from 2 to 3 ([45589c7](https://github.com/somaz94/kube-events/commit/45589c74f7882da153de51a66db3a6874db1f98f))
+
+### Contributors
+
+- somaz
 
 <br/>
 
