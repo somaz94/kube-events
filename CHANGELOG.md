@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased (2026-06-23)
+## Unreleased (2026-06-24)
 
 ### Documentation
 
@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
 
 ### Chores
 
+- **deps:** bump actions/checkout from 6 to 7 (#7) ([#7](https://github.com/somaz94/kube-events/pull/7)) ([6c7178c](https://github.com/somaz94/kube-events/commit/6c7178cdc98e73ec58594ec49bf9245a5a24baf4))
 - **deps:** bump the go-minor group with 3 updates (#8) ([#8](https://github.com/somaz94/kube-events/pull/8)) ([99e903a](https://github.com/somaz94/kube-events/commit/99e903a426e07476c2bc167e40ed255e3c69fbe5))
 - **deps:** bump the go-minor group with 3 updates (#6) ([#6](https://github.com/somaz94/kube-events/pull/6)) ([d4e3908](https://github.com/somaz94/kube-events/commit/d4e3908ce2952cf3d11910201dccc6801cb7d25c))
 - **deps:** bump the go-minor group with 3 updates (#5) ([#5](https://github.com/somaz94/kube-events/pull/5)) ([e417e39](https://github.com/somaz94/kube-events/commit/e417e3975ecfbbc233de53c799e25d05a2b0a186))
