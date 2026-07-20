@@ -2,19 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased (2026-06-24)
+## Unreleased (2026-07-20)
 
 ### Documentation
 
+- remove DCO sign-off instructions ([247aea2](https://github.com/somaz94/kube-events/commit/247aea2257f84337eb8ee09a6c4a1e28ecdf9b48))
 - document DCO sign-off requirement in CONTRIBUTING ([40c53df](https://github.com/somaz94/kube-events/commit/40c53dfefb2b5c9214cb8226f82b4f0ededdf372))
 
 ### Continuous Integration
 
+- remove DCO workflow ([eb1df7b](https://github.com/somaz94/kube-events/commit/eb1df7b0ac57d393b8655055de74555b9caa38f8))
+- adopt semantic-pr, labels, lock-threads, PR size, and auto-assign reusables ([0f6f12c](https://github.com/somaz94/kube-events/commit/0f6f12cfc186e46d3b1ec8a13e2dc9f839a186c7))
+- use reusable stale-issues workflow ([8128077](https://github.com/somaz94/kube-events/commit/8128077fb68fed3624cc01d50e747732875e0bf1))
+- use reusable issue-greeting workflow ([7bf0c4b](https://github.com/somaz94/kube-events/commit/7bf0c4bbac77d0d49b0dbfb407c1676b2445ca8f))
+- use reusable dependabot-auto-merge workflow ([66b02f1](https://github.com/somaz94/kube-events/commit/66b02f15a1488f838f474f0fcd662681dabb2aed))
+- use reusable contributors workflow ([216c5d4](https://github.com/somaz94/kube-events/commit/216c5d4f4fe528887399e9bfb658c279b18fb3d5))
+- grant ok-to-test stub the permissions its reusable requires ([9a73cd7](https://github.com/somaz94/kube-events/commit/9a73cd77d128b9205b840efa51820a3b833531e7))
+- add PR welcome and ok-to-test workflow stubs ([e6ca686](https://github.com/somaz94/kube-events/commit/e6ca686f0bdefcc6634ec62979feffd5123e1281))
 - add DCO check via shared reusable workflow ([21f128b](https://github.com/somaz94/kube-events/commit/21f128bee7570573aac343651b1db5576b71fc18))
 - add concurrency guards to recurring workflows ([e61314b](https://github.com/somaz94/kube-events/commit/e61314bd2dd8ed47e93e58c2ce5a808543d9de65))
 
 ### Chores
 
+- **deps:** bump actions/setup-go from 6 to 7 (#10) ([#10](https://github.com/somaz94/kube-events/pull/10)) ([bb65650](https://github.com/somaz94/kube-events/commit/bb6565068ccda95bf3662b3bcf1a5a514537dd7a))
 - **deps:** bump actions/checkout from 6 to 7 (#7) ([#7](https://github.com/somaz94/kube-events/pull/7)) ([6c7178c](https://github.com/somaz94/kube-events/commit/6c7178cdc98e73ec58594ec49bf9245a5a24baf4))
 - **deps:** bump the go-minor group with 3 updates (#8) ([#8](https://github.com/somaz94/kube-events/pull/8)) ([99e903a](https://github.com/somaz94/kube-events/commit/99e903a426e07476c2bc167e40ed255e3c69fbe5))
 - **deps:** bump the go-minor group with 3 updates (#6) ([#6](https://github.com/somaz94/kube-events/pull/6)) ([d4e3908](https://github.com/somaz94/kube-events/commit/d4e3908ce2952cf3d11910201dccc6801cb7d25c))
