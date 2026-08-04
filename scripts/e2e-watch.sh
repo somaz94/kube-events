@@ -63,6 +63,9 @@ if [ ! -x "$BINARY" ]; then
 fi
 
 echo "==> Creating namespaces"
+# Namespaces from an earlier run may still be terminating, which would make the
+# create below fail. Wait them out so the check is re-runnable.
+kubectl delete namespace "$NS_A" "$NS_B" --ignore-not-found --wait=true --timeout=120s >/dev/null 2>&1 || true
 kubectl create namespace "$NS_A" >/dev/null
 kubectl create namespace "$NS_B" >/dev/null
 
