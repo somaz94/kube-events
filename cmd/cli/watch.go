@@ -63,11 +63,27 @@ func runWatch(f eventFlags) error {
 
 	fmt.Fprintf(os.Stderr, "Watching events (press Ctrl+C to stop)...\n\n")
 
+	return streamEvents(ctx, watcher.ResultChan(), filterOpts, f.output, os.Stdout)
+}
+
+// streamEvents consumes a watch stream, applies the filters and prints every
+// surviving event. It returns when the context is cancelled or the stream
+// closes.
+//
+// Taking the channel rather than the watcher keeps the loop independent of how
+// the stream was opened, so tests can drive it from watch.NewFake().
+func streamEvents(
+	ctx context.Context,
+	ch <-chan watch.Event,
+	opts event.FilterOptions,
+	output string,
+	w *os.File,
+) error {
 	for {
 		select {
 		case <-ctx.Done():
 			return nil
-		case ev, ok := <-watcher.ResultChan():
+		case ev, ok := <-ch:
 			if !ok {
 				return nil
 			}
@@ -83,12 +99,12 @@ func runWatch(f eventFlags) error {
 			e := event.ConvertK8sEvent(*k8sEvent)
 
 			// Apply filters
-			filtered := event.Filter([]event.Event{e}, filterOpts)
+			filtered := event.Filter([]event.Event{e}, opts)
 			if len(filtered) == 0 {
 				continue
 			}
 
-			printWatchEvent(os.Stdout, filtered[0], f.output)
+			printWatchEvent(w, filtered[0], output)
 		}
 	}
 }
