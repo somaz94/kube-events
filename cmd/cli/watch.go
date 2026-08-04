@@ -187,7 +187,11 @@ func printWatchEvent(w *os.File, e event.Event, format string) {
 			Events: []event.Event{e},
 		}}
 		s := report.NewSummary(groups, []event.Event{e}, "resource")
-		s.PrintJSON(w)
+		// A marshalling failure would otherwise drop the event silently, leaving
+		// a gap in the stream with nothing to explain it.
+		if err := s.PrintJSON(w); err != nil {
+			fmt.Fprintf(os.Stderr, "[WARN] failed to print event as JSON: %v\n", err)
+		}
 	default:
 		typeColor, icon := report.EventStyle(e.Type)
 
