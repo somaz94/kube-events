@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 
 	"github.com/somaz94/kube-events/internal/client"
@@ -16,7 +17,76 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
+// watchFunc opens a watch stream for a single namespace. An empty namespace
+// means cluster-wide. It is the seam that lets tests supply fake streams in
+// place of a live API server.
+type watchFunc func(ctx context.Context, namespace string) (watch.Interface, error)
+
+// resolveWatchNamespaces returns the namespaces to open a watch on. A single
+// empty entry means cluster-wide, matching how runEvents treats the same flags.
+func resolveWatchNamespaces(f eventFlags) []string {
+	if f.allNamespaces || len(f.namespaces) == 0 {
+		return []string{""}
+	}
+	return f.namespaces
+}
+
+// startWatchers opens one watcher per namespace and merges their streams into a
+// single channel.
+//
+// The Kubernetes watch API is scoped to one namespace per call, so a repeatable
+// --namespace can only be honored by fanning in; watching cluster-wide and
+// filtering afterwards would instead demand cluster-scoped RBAC the caller may
+// not have. The returned stop function stops every watcher that was opened.
+func startWatchers(ctx context.Context, start watchFunc, namespaces []string) (<-chan watch.Event, func(), error) {
+	watchers := make([]watch.Interface, 0, len(namespaces))
+	stop := func() {
+		for _, w := range watchers {
+			w.Stop()
+		}
+	}
+
+	for _, ns := range namespaces {
+		w, err := start(ctx, ns)
+		if err != nil {
+			// Stop the watchers already opened so a partial failure leaks none.
+			stop()
+			return nil, nil, fmt.Errorf("failed to watch events in namespace %q: %w", ns, err)
+		}
+		watchers = append(watchers, w)
+	}
+
+	merged := make(chan watch.Event)
+	var wg sync.WaitGroup
+	for _, w := range watchers {
+		wg.Add(1)
+		go func(w watch.Interface) {
+			defer wg.Done()
+			for ev := range w.ResultChan() {
+				select {
+				case merged <- ev:
+				case <-ctx.Done():
+					return
+				}
+			}
+		}(w)
+	}
+	go func() {
+		wg.Wait()
+		close(merged)
+	}()
+
+	return merged, stop, nil
+}
+
 func runWatch(f eventFlags) error {
+	// Validate the flags before opening any connection, so a bad --since fails
+	// immediately instead of after a watch has been established.
+	since, err := parseSince(f.since)
+	if err != nil {
+		return fmt.Errorf("invalid --since value: %w", err)
+	}
+
 	config, err := client.LoadKubeConfig(f.kubeconfig, f.kubeContext)
 	if err != nil {
 		return err
@@ -25,11 +95,6 @@ func runWatch(f eventFlags) error {
 	cs, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		return fmt.Errorf("failed to create clientset: %w", err)
-	}
-
-	namespace := ""
-	if len(f.namespaces) > 0 && !f.allNamespaces {
-		namespace = f.namespaces[0]
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -43,16 +108,16 @@ func runWatch(f eventFlags) error {
 		cancel()
 	}()
 
-	watcher, err := cs.CoreV1().Events(namespace).Watch(ctx, metav1.ListOptions{})
-	if err != nil {
-		return fmt.Errorf("failed to watch events: %w", err)
+	start := func(ctx context.Context, namespace string) (watch.Interface, error) {
+		return cs.CoreV1().Events(namespace).Watch(ctx, metav1.ListOptions{})
 	}
-	defer watcher.Stop()
 
-	since, err := parseSince(f.since)
+	merged, stop, err := startWatchers(ctx, start, resolveWatchNamespaces(f))
 	if err != nil {
-		return fmt.Errorf("invalid --since value: %w", err)
+		return err
 	}
+	defer stop()
+
 	filterOpts := event.FilterOptions{
 		Since:   since,
 		Kinds:   f.kinds,
@@ -63,7 +128,7 @@ func runWatch(f eventFlags) error {
 
 	fmt.Fprintf(os.Stderr, "Watching events (press Ctrl+C to stop)...\n\n")
 
-	return streamEvents(ctx, watcher.ResultChan(), filterOpts, f.output, os.Stdout)
+	return streamEvents(ctx, merged, filterOpts, f.output, os.Stdout)
 }
 
 // streamEvents consumes a watch stream, applies the filters and prints every
