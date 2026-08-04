@@ -2,12 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased (2026-07-20)
+## [v0.3.2](https://github.com/somaz94/kube-events/compare/v0.3.1...v0.3.2) (2026-08-04)
+
+### Bug Fixes
+
+- validate --group-by in watch mode and document the flags it ignores ([cf819ea](https://github.com/somaz94/kube-events/commit/cf819ea1c5bc2fb60a2f4595b4fae12c9ae11f94))
+- watch every namespace given to a repeatable --namespace, not just the first ([5865df4](https://github.com/somaz94/kube-events/commit/5865df493ffc7fd6026ab467289ceaad9369584f))
+
+### Code Refactoring
+
+- extract the watch event loop so it can be driven by a fake stream ([c1d3ccb](https://github.com/somaz94/kube-events/commit/c1d3ccb18f971229872b7571a0e0d84070d42e54))
 
 ### Documentation
 
 - remove DCO sign-off instructions ([247aea2](https://github.com/somaz94/kube-events/commit/247aea2257f84337eb8ee09a6c4a1e28ecdf9b48))
 - document DCO sign-off requirement in CONTRIBUTING ([40c53df](https://github.com/somaz94/kube-events/commit/40c53dfefb2b5c9214cb8226f82b4f0ededdf372))
+
+### Tests
+
+- make the watch e2e check re-runnable by waiting out terminating namespaces ([fc52ffb](https://github.com/somaz94/kube-events/commit/fc52ffb6e3b72a8cbaa19e6f4e82fda7b99d55e5))
+- verify multi-namespace watch mode against a live cluster in e2e ([4efcfd6](https://github.com/somaz94/kube-events/commit/4efcfd66f89a691819f624ea72b2d17ba4f4661b))
+- check the Close error in the stream test helper ([ec48be2](https://github.com/somaz94/kube-events/commit/ec48be2c80d39d6eb42fc0768e0ae412091b55c4))
+- cover the CLI wiring paths and the pre-connection flag validation ([38b8a47](https://github.com/somaz94/kube-events/commit/38b8a478a5d6274825480815415bbf50a7f5f30d))
 
 ### Continuous Integration
 
@@ -24,6 +40,7 @@ All notable changes to this project will be documented in this file.
 
 ### Chores
 
+- **deps:** bump the go-minor group with 3 updates (#11) ([#11](https://github.com/somaz94/kube-events/pull/11)) ([c66896f](https://github.com/somaz94/kube-events/commit/c66896f551a545e23f3d14d718174a3b634760f3))
 - **deps:** bump actions/setup-go from 6 to 7 (#10) ([#10](https://github.com/somaz94/kube-events/pull/10)) ([bb65650](https://github.com/somaz94/kube-events/commit/bb6565068ccda95bf3662b3bcf1a5a514537dd7a))
 - **deps:** bump actions/checkout from 6 to 7 (#7) ([#7](https://github.com/somaz94/kube-events/pull/7)) ([6c7178c](https://github.com/somaz94/kube-events/commit/6c7178cdc98e73ec58594ec49bf9245a5a24baf4))
 - **deps:** bump the go-minor group with 3 updates (#8) ([#8](https://github.com/somaz94/kube-events/pull/8)) ([99e903a](https://github.com/somaz94/kube-events/commit/99e903a426e07476c2bc167e40ed255e3c69fbe5))
