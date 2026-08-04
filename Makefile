@@ -4,7 +4,7 @@ COMMIT=$(shell git rev-parse --short HEAD 2>/dev/null || echo "none")
 DATE=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 LDFLAGS=-ldflags "-X github.com/somaz94/kube-events/cmd/cli.version=$(VERSION) -X github.com/somaz94/kube-events/cmd/cli.commit=$(COMMIT) -X github.com/somaz94/kube-events/cmd/cli.date=$(DATE)"
 
-.PHONY: build clean test test-unit cover lint fmt vet demo demo-clean demo-all check-gh branch pr help
+.PHONY: build clean test test-unit cover lint fmt vet demo demo-clean demo-all test-e2e-watch check-gh branch pr help
 
 build: ## Build the binary
 	go build $(LDFLAGS) -o $(BINARY_NAME) ./cmd/main.go
@@ -40,6 +40,9 @@ demo-clean: ## Clean up demo resources
 
 demo-all: demo demo-clean ## Run demo and clean up
 
+test-e2e-watch: build ## Verify watch mode across multiple namespaces (needs a kind cluster)
+	./scripts/e2e-watch.sh
+
 ## Workflow
 
 check-gh: ## Check if gh CLI is installed and authenticated
@@ -65,4 +68,4 @@ pr: check-gh ## Run tests, push, and create PR (usage: make pr title="Add watch 
 ## Help
 
 help: ## Show this help
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
