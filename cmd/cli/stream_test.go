@@ -20,7 +20,7 @@ func captureFile(t *testing.T) (*os.File, func() string) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Cleanup(func() { f.Close() })
+	t.Cleanup(func() { _ = f.Close() })
 	return f, func() string {
 		b, err := os.ReadFile(f.Name())
 		if err != nil {
