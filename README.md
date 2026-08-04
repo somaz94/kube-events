@@ -169,10 +169,15 @@ Summary: 4 events, 2 resources | Warning: 2 | Normal: 2
 | `--reason` | `-r` | all | Event reason (e.g., `BackOff`) |
 | `--since` | | `1h` | Show events newer than duration |
 | `--output` | `-o` | `color` | Format: `color`, `plain`, `json`, `markdown`, `table` |
-| `--group-by` | `-g` | `resource` | Group by: `resource`, `namespace`, `kind`, `reason` |
-| `--summary-only` | `-s` | `false` | Show summary statistics only |
+| `--group-by` | `-g` | `resource` | Group by: `resource`, `namespace`, `kind`, `reason` (no effect with `--watch`) |
+| `--summary-only` | `-s` | `false` | Show summary statistics only (no effect with `--watch`) |
 | `--all-namespaces` | | `false` | Show events from all namespaces |
 | `--watch` | `-w` | `false` | Watch for new events in real-time |
+
+`--group-by` and `--summary-only` shape a completed set of events, so they do
+nothing in watch mode, where events arrive one at a time. Both flags are still
+accepted there, and an invalid `--group-by` value is rejected in either mode.
+Every other filter — including a repeated `--namespace` — applies to both.
 
 <br/>
 

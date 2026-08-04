@@ -100,6 +100,16 @@ func parseSince(s string) (time.Duration, error) {
 	return d, nil
 }
 
+// validateGroupBy rejects an unusable --group-by value. Both the listing and the
+// watch path share it so a typo is reported identically either way, even though
+// only the listing path acts on the value.
+func validateGroupBy(groupBy string) error {
+	if event.ValidGroupBy(groupBy) {
+		return nil
+	}
+	return fmt.Errorf("invalid --group-by value %q: must be resource, namespace, kind, or reason", groupBy)
+}
+
 func runRoot(cmd *cobra.Command, args []string) error {
 	f, err := extractFlags(cmd)
 	if err != nil {
@@ -121,6 +131,10 @@ func runRoot(cmd *cobra.Command, args []string) error {
 func runEvents(lister client.EventLister, f eventFlags, w *os.File) error {
 	since, err := parseSince(f.since)
 	if err != nil {
+		return err
+	}
+	// Validate before listing so a bad value fails without an API round trip.
+	if err := validateGroupBy(f.groupBy); err != nil {
 		return err
 	}
 
@@ -149,10 +163,7 @@ func runEvents(lister client.EventLister, f eventFlags, w *os.File) error {
 		Reasons: f.reasons,
 	})
 
-	// Validate and apply grouping
-	if !event.ValidGroupBy(f.groupBy) {
-		return fmt.Errorf("invalid --group-by value %q: must be resource, namespace, kind, or reason", f.groupBy)
-	}
+	// Apply grouping; the value was validated before any listing happened.
 	groups := event.GroupEvents(filtered, event.GroupBy(f.groupBy))
 
 	// Build summary

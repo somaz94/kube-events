@@ -26,8 +26,8 @@ Reference for all kube-events configuration options.
 | `--reason` | `-r` | []string | (all) | Filter by event reason (repeatable) |
 | `--since` | | string | `1h` | Show events newer than relative duration |
 | `--output` | `-o` | string | `color` | Output format: `color`, `plain`, `json`, `markdown`, `table` |
-| `--group-by` | `-g` | string | `resource` | Group events by: `resource`, `namespace`, `kind`, `reason` |
-| `--summary-only` | `-s` | bool | `false` | Show summary statistics only |
+| `--group-by` | `-g` | string | `resource` | Group events by: `resource`, `namespace`, `kind`, `reason` (no effect with `--watch`) |
+| `--summary-only` | `-s` | bool | `false` | Show summary statistics only (no effect with `--watch`) |
 | `--all-namespaces` | | bool | `false` | Show events from all namespaces |
 | `--watch` | `-w` | bool | `false` | Watch for new events in real-time |
 

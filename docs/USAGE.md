@@ -49,8 +49,8 @@ kube-events -w
 | `--reason` | `-r` | All | Filter by event reason (e.g., `BackOff`, `Unhealthy`) |
 | `--since` | | `1h` | Show events newer than relative duration |
 | `--output` | `-o` | `color` | Output format: `color`, `plain`, `json`, `markdown`, `table` |
-| `--group-by` | `-g` | `resource` | Group events by: `resource`, `namespace`, `kind`, `reason` |
-| `--summary-only` | `-s` | `false` | Show summary statistics only |
+| `--group-by` | `-g` | `resource` | Group events by: `resource`, `namespace`, `kind`, `reason` (no effect with `--watch`) |
+| `--summary-only` | `-s` | `false` | Show summary statistics only (no effect with `--watch`) |
 | `--all-namespaces` | | `false` | Show events from all namespaces |
 | `--watch` | `-w` | `false` | Watch for new events in real-time |
 

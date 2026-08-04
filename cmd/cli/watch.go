@@ -86,6 +86,11 @@ func runWatch(f eventFlags) error {
 	if err != nil {
 		return fmt.Errorf("invalid --since value: %w", err)
 	}
+	// --group-by does not shape a live stream, but the value is still checked so
+	// a typo is rejected here exactly as it is on the listing path.
+	if err := validateGroupBy(f.groupBy); err != nil {
+		return err
+	}
 
 	config, err := client.LoadKubeConfig(f.kubeconfig, f.kubeContext)
 	if err != nil {
