@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.3.3](https://github.com/somaz94/kube-events/compare/v0.3.2...v0.3.3) (2026-08-14)
+
+### Continuous Integration
+
+- add a golangci-lint config scoped to defect-finding linters ([a5b381f](https://github.com/somaz94/kube-events/commit/a5b381ff6c250135a51d847e9314fae83da2af7b))
+
+### Chores
+
+- publish the Homebrew package as a cask instead of a deprecated formula ([d358de7](https://github.com/somaz94/kube-events/commit/d358de765997f6e6c582d41dabf815cadcb5694e))
+
+### Contributors
+
+- somaz
+
+<br/>
+
 ## [v0.3.2](https://github.com/somaz94/kube-events/compare/v0.3.1...v0.3.2) (2026-08-04)
 
 ### Bug Fixes
