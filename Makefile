@@ -43,8 +43,6 @@ demo-all: demo demo-clean ## Run demo and clean up
 test-e2e-watch: build ## Verify watch mode across multiple namespaces (needs a kind cluster)
 	./scripts/e2e-watch.sh
 
-## Workflow
-
 check-gh: ## Check if gh CLI is installed and authenticated
 	@command -v gh >/dev/null 2>&1 || { echo "\033[31m✗ gh CLI not installed. Run: brew install gh\033[0m"; exit 1; }
 	@gh auth status >/dev/null 2>&1 || { echo "\033[31m✗ gh CLI not authenticated. Run: gh auth login\033[0m"; exit 1; }
@@ -64,8 +62,6 @@ pr: check-gh ## Run tests, push, and create PR (usage: make pr title="Add watch 
 	git push -u origin $$(git branch --show-current)
 	@./scripts/create-pr.sh "$(title)"
 	@echo "\033[32m✓ PR created\033[0m"
-
-## Help
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'

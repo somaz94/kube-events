@@ -12,7 +12,6 @@ NS_B="kube-events-watch-b"
 POD_A="watch-probe-a"
 POD_B="watch-probe-b"
 
-# How long to wait for both events to reach the stream.
 TIMEOUT_SECONDS="${WATCH_TIMEOUT_SECONDS:-90}"
 
 OUT_FILE="$(mktemp)"
@@ -89,8 +88,7 @@ while [ "$SECONDS" -lt "$deadline" ]; do
   sleep 2
 done
 
-# Report precisely which side is missing: seeing only the first namespace is the
-# exact symptom of the single-watch regression this check exists for.
+# Seeing only NS_A is the single-watch regression this check exists for.
 saw_a=no; saw_b=no
 grep -q "$POD_A" "$OUT_FILE" && saw_a=yes
 grep -q "$POD_B" "$OUT_FILE" && saw_b=yes
