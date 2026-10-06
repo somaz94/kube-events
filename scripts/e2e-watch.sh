@@ -1,11 +1,6 @@
 #!/usr/bin/env bash
-#
-# End-to-end check for watch mode against a live cluster.
-#
-# It guards the behavior unit tests cannot reach: --namespace is repeatable, so
-# `--watch` must open a watch on EVERY namespace given, not just the first. The
-# check starts a watcher across two namespaces, makes an event happen in each,
-# and fails unless both surface on the stream.
+# Live-cluster check for what unit tests cannot reach: --namespace is repeatable,
+# so --watch must open a watch on EVERY namespace given, not just the first.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -41,9 +36,6 @@ fail() {
   exit 1
 }
 
-# This check creates and deletes namespaces, so it must not be pointed at a real
-# cluster by accident. Only a kind context is allowed unless the caller opts out
-# deliberately.
 CONTEXT="$(kubectl config current-context 2>/dev/null || echo '')"
 case "$CONTEXT" in
   kind-*) ;;
@@ -69,8 +61,6 @@ kubectl delete namespace "$NS_A" "$NS_B" --ignore-not-found --wait=true --timeou
 kubectl create namespace "$NS_A" >/dev/null
 kubectl create namespace "$NS_B" >/dev/null
 
-# The watcher must be running before the events happen, otherwise there is
-# nothing live to observe.
 echo "==> Starting watch across both namespaces"
 "$BINARY" -n "$NS_A" -n "$NS_B" --watch --since 5m > "$OUT_FILE" 2>&1 &
 WATCH_PID=$!
