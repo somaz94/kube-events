@@ -1,20 +1,22 @@
 # CLAUDE.md - kube-events
 
-CLI tool to view and summarize Kubernetes events with resource grouping and warning highlighting.
+CLI tool to view and summarize Kubernetes events, grouped by resource, namespace, kind or reason, with warnings highlighted.
+
+<br/>
 
 ## Build & Test
 
 ```bash
 make build           # Build binary
-make test            # Run unit tests (alias for test-unit)
-make test-unit       # go test ./... -v -race -cover
-make cover           # Generate coverage report
-make cover-html      # Open coverage in browser
-make fmt             # go fmt
-make vet             # go vet
-make demo            # Run demo (deploy → compare → detect)
-make demo-clean      # Remove demo resources from cluster
+make test            # Unit tests with -race and coverage
+make lint            # golangci-lint
+make test-e2e-watch  # Watch mode across namespaces (needs a kind cluster)
+make demo            # Deploy demo resources into the CURRENT context (`make demo-clean` removes them)
 ```
+
+`make help` lists every target.
+
+<br/>
 
 ## Key Concepts
 
@@ -22,57 +24,39 @@ make demo-clean      # Remove demo resources from cluster
 - **Event**: Normalized event struct with InvolvedObject, Source, Age
 - **ConvertK8sEvent**: Converts corev1.Event to internal Event (shared by client and watch)
 - **FormatAge**: Formats duration to human-readable short form (5s, 3m, 2h, 1d)
-- **Filter**: Filters events by time, kind, name, type, reason
-- **GroupEvents**: Groups events by resource, namespace, kind, or reason
+- **Filter**: Filters events by time, kind, name, type, reason, and sorts them newest first
+- **GroupEvents**: Groups events by resource, namespace, kind, or reason; an empty mode means resource
 - **GroupByResource**: Groups events by involved object (Kind/Name/Namespace)
 - **Report**: Outputs color/plain/json/markdown/table summary
+- **Watch**: Opens one watch per `--namespace` (one cluster-wide watch when none is given or with `--all-namespaces`) and fans them into one stream; each event prints on its own as it arrives, in the shape the README Output Formats section describes
+
+<br/>
 
 ## CLI Flags
 
-| Flag | Short | Default | Description |
-|------|-------|---------|-------------|
-| `--kubeconfig` | | `~/.kube/config` | Path to kubeconfig |
-| `--context` | | current | Kubernetes context |
-| `--namespace` | `-n` | all | Filter by namespace |
-| `--kind` | `-k` | all | Filter by involved object kind |
-| `--name` | `-N` | all | Filter by involved object name |
-| `--type` | `-t` | all | Filter by event type (Normal, Warning) |
-| `--reason` | `-r` | all | Filter by reason (BackOff, Unhealthy, etc.) |
-| `--since` | | `1h` | Show events newer than duration |
-| `--output` | `-o` | `color` | Output format |
-| `--group-by` | `-g` | `resource` | Group by: resource, namespace, kind, reason |
-| `--summary-only` | `-s` | `false` | Summary statistics only |
-| `--all-namespaces` | | `false` | All namespaces |
-| `--watch` | `-w` | `false` | Watch for new events |
+Flags are registered in `cmd/cli/root.go`, and the README Flags table is the user-facing reference. Rules that are easy to break:
+
+- `--namespace` is repeatable, in both list and watch mode.
+- `--group-by` and `--summary-only` do nothing with `--watch`, but an invalid `--group-by` is still rejected there with the same message as when listing.
+
+<br/>
 
 ## Project Structure
 
-```
-cmd/
-  main.go              # Entry point
-  cli/
-    root.go            # Cobra root command + global flags
-    run.go             # Core execution logic
-    watch.go           # Watch mode implementation
-    version.go         # Version subcommand
-internal/
-  client/
-    client.go          # Kubernetes client wrapper
-  event/
-    types.go           # Event data model
-    filter.go          # Filtering and grouping logic
-    convert.go         # K8s event → internal Event conversion
-    format.go          # Duration formatting (FormatAge)
-  report/
-    summary.go         # Output formatters (color/plain/json/markdown/table)
-scripts/
-  demo.sh             # Demo script (deploy → compare → detect)
-  demo-clean.sh       # Demo cleanup script
-```
+One role per directory:
+
+- `cmd`: `main.go` entry point
+- `cmd/cli`: Cobra command, flag wiring, the list path (`run.go`) and the watch path (`watch.go`)
+- `internal/client`: client-go wrapper and kubeconfig loading
+- `internal/event`: event model, conversion, filtering and grouping
+- `internal/report`: output formatters
+- `scripts/`: shell helpers, each run by a Makefile target
+
+<br/>
 
 ## Important Rules
 
-- **코드/테스트 수정 후 반드시 관련 문서를 확인하고 업데이트할 것.**
-  - `README.md` — Quick Start, 설치 방법
-  - `CHANGELOG.md` — Unreleased 섹션에 변경사항 추가
-  - `CLAUDE.md` — Key Concepts, CLI Flags 테이블
+- After changing code or tests, check the docs and update them:
+  - `README.md`: Quick Start, installation, flags and output formats
+  - `CLAUDE.md`: Key Concepts and the CLI Flags rules
+- Do not edit `CHANGELOG.md` by hand. `.github/workflows/changelog-generator.yml` regenerates it after a merged PR or a release.

@@ -160,7 +160,7 @@ Summary: 4 events, 2 resources | Warning: 2 | Normal: 2
 
 | Flag | Short | Default | Description |
 |------|-------|---------|-------------|
-| `--kubeconfig` | | `~/.kube/config` | Path to kubeconfig |
+| `--kubeconfig` | | `$KUBECONFIG`, then `~/.kube/config` | Path to kubeconfig |
 | `--context` | | current | Kubernetes context |
 | `--namespace` | `-n` | all | Filter by namespace (repeatable) |
 | `--kind` | `-k` | all | Filter by involved object kind |
@@ -210,14 +210,11 @@ make demo-clean  # Remove demo resources from cluster
 
 ## Project Structure
 
-```
-cmd/                    # CLI entry point & Cobra commands
-internal/
-  client/               # Kubernetes client wrapper (EventLister interface)
-  event/                # Event model, filtering, grouping, conversion, formatting
-  report/               # Color/JSON/Markdown/Table output
-scripts/                # Demo and utility scripts
-```
+- `cmd/`: CLI entry point and Cobra commands
+- `internal/client/`: Kubernetes client wrapper (`EventLister` interface)
+- `internal/event/`: event model, filtering, grouping, conversion, formatting
+- `internal/report/`: output formatters
+- `scripts/`: demo and utility scripts
 
 <br/>
 
