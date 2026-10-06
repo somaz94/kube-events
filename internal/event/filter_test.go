@@ -238,6 +238,23 @@ func TestGroupEvents_Resource(t *testing.T) {
 	}
 }
 
+func TestGroupEvents_EmptyModeGroupsByResource(t *testing.T) {
+	events := []Event{
+		newEvent("Warning", "Pod", "app-1", "default", "BackOff", "back-off", 5*time.Minute),
+		newEvent("Normal", "Deployment", "api", "prod", "ScalingUp", "scaled", 3*time.Minute),
+	}
+
+	groups := GroupEvents(events, "")
+	if len(groups) != 2 {
+		t.Fatalf("expected 2 groups, got %d", len(groups))
+	}
+	for _, g := range groups {
+		if g.Key.Kind == "" || g.Key.Name == "" || g.Key.Label != "" {
+			t.Errorf("expected a resource key, got %+v", g.Key)
+		}
+	}
+}
+
 func TestGroupEvents_Namespace(t *testing.T) {
 	events := []Event{
 		newEvent("Warning", "Pod", "app-1", "prod", "BackOff", "back-off", 5*time.Minute),

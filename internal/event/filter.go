@@ -73,9 +73,10 @@ func GroupByResource(events []Event) []ResourceGroup {
 	return groups
 }
 
-// GroupEvents groups events by the specified mode.
+// GroupEvents groups events by the specified mode. An empty mode groups by
+// resource, since ValidGroupBy accepts it.
 func GroupEvents(events []Event, mode GroupBy) []ResourceGroup {
-	if mode == GroupResource {
+	if mode == GroupResource || mode == "" {
 		return GroupByResource(events)
 	}
 
