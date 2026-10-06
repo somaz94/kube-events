@@ -6,7 +6,8 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-// ConvertK8sEvent converts a Kubernetes corev1.Event to an internal Event.
+// ConvertK8sEvent converts a corev1.Event. LastSeen falls back from LastTimestamp
+// to EventTime to CreationTimestamp: events.k8s.io reporters leave LastTimestamp unset.
 func ConvertK8sEvent(e corev1.Event) Event {
 	lastSeen := e.LastTimestamp.Time
 	if lastSeen.IsZero() {

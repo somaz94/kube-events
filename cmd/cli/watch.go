@@ -31,13 +31,9 @@ func resolveWatchNamespaces(f eventFlags) []string {
 	return f.namespaces
 }
 
-// startWatchers opens one watcher per namespace and merges their streams into a
-// single channel.
-//
-// The Kubernetes watch API is scoped to one namespace per call, so a repeatable
-// --namespace can only be honored by fanning in; watching cluster-wide and
-// filtering afterwards would instead demand cluster-scoped RBAC the caller may
-// not have. The returned stop function stops every watcher that was opened.
+// startWatchers fans in one watch per namespace: the watch API takes a single
+// namespace, and watching cluster-wide then filtering would need cluster-scoped
+// RBAC the caller may lack. The returned stop stops every watcher opened.
 func startWatchers(ctx context.Context, start watchFunc, namespaces []string) (<-chan watch.Event, func(), error) {
 	watchers := make([]watch.Interface, 0, len(namespaces))
 	stop := func() {
@@ -49,7 +45,6 @@ func startWatchers(ctx context.Context, start watchFunc, namespaces []string) (<
 	for _, ns := range namespaces {
 		w, err := start(ctx, ns)
 		if err != nil {
-			// Stop the watchers already opened so a partial failure leaks none.
 			stop()
 			return nil, nil, fmt.Errorf("failed to watch events in namespace %q: %w", ns, err)
 		}
@@ -80,14 +75,12 @@ func startWatchers(ctx context.Context, start watchFunc, namespaces []string) (<
 }
 
 func runWatch(f eventFlags) error {
-	// Validate the flags before opening any connection, so a bad --since fails
-	// immediately instead of after a watch has been established.
+	// Validate flags before connecting so a bad value fails without opening a watch.
 	since, err := parseSince(f.since)
 	if err != nil {
 		return fmt.Errorf("invalid --since value: %w", err)
 	}
-	// --group-by does not shape a live stream, but the value is still checked so
-	// a typo is rejected here exactly as it is on the listing path.
+	// --group-by is unused here; validate it anyway so a typo fails as it would when listing.
 	if err := validateGroupBy(f.groupBy); err != nil {
 		return err
 	}
@@ -181,8 +174,7 @@ func printWatchEvent(w *os.File, e event.Event, format string) {
 			Events: []event.Event{e},
 		}}
 		s := report.NewSummary(groups, []event.Event{e}, "resource")
-		// A marshalling failure would otherwise drop the event silently, leaving
-		// a gap in the stream with nothing to explain it.
+		// Warn rather than silently drop the event and leave an unexplained gap.
 		if err := s.PrintJSON(w); err != nil {
 			fmt.Fprintf(os.Stderr, "[WARN] failed to print event as JSON: %v\n", err)
 		}

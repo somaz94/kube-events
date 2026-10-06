@@ -15,11 +15,9 @@ grouped by resource with warning highlighting and summary statistics.`,
 }
 
 func init() {
-	// Connection flags
 	rootCmd.PersistentFlags().String("kubeconfig", "", "path to kubeconfig file")
 	rootCmd.PersistentFlags().String("context", "", "kubernetes context to use")
 
-	// Filter flags
 	rootCmd.PersistentFlags().StringSliceP("namespace", "n", nil, "filter by namespace (repeatable)")
 	rootCmd.PersistentFlags().StringSliceP("kind", "k", nil, "filter by involved object kind (e.g., Pod, Deployment)")
 	rootCmd.PersistentFlags().StringSliceP("name", "N", nil, "filter by involved object name")
@@ -27,7 +25,6 @@ func init() {
 	rootCmd.PersistentFlags().StringSliceP("reason", "r", nil, "filter by event reason (e.g., BackOff, Unhealthy)")
 	rootCmd.PersistentFlags().String("since", "1h", "show events newer than a relative duration (e.g., 5m, 1h, 24h)")
 
-	// Output flags
 	rootCmd.PersistentFlags().StringP("output", "o", "color", "output format: color, plain, json, markdown, table")
 	rootCmd.PersistentFlags().StringP("group-by", "g", "resource", "group events by: resource, namespace, kind, reason")
 	rootCmd.PersistentFlags().BoolP("summary-only", "s", false, "show summary statistics only")

@@ -13,7 +13,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// fakeLister implements client.EventLister for testing.
 type fakeLister struct {
 	events map[string][]event.Event
 	err    error
@@ -87,8 +86,7 @@ func TestToUpper(t *testing.T) {
 }
 
 func TestExtractFlags_Defaults(t *testing.T) {
-	// PersistentFlags are merged into Flags() during command execution.
-	// Verify defaults via PersistentFlags directly.
+	// Flags() only merges PersistentFlags at execution time, so read them directly.
 	pf := rootCmd.PersistentFlags()
 
 	since, _ := pf.GetString("since")
@@ -382,7 +380,6 @@ func TestConvertWatchEvent(t *testing.T) {
 func TestConvertWatchEvent_FallbackTimestamps(t *testing.T) {
 	now := time.Now()
 
-	// EventTime fallback
 	e1 := event.ConvertK8sEvent(corev1.Event{
 		ObjectMeta: metav1.ObjectMeta{Name: "e1"},
 		EventTime:  metav1.MicroTime{Time: now.Add(-1 * time.Minute)},
@@ -391,7 +388,6 @@ func TestConvertWatchEvent_FallbackTimestamps(t *testing.T) {
 		t.Error("expected LastSeen from EventTime")
 	}
 
-	// CreationTimestamp fallback
 	e2 := event.ConvertK8sEvent(corev1.Event{
 		ObjectMeta: metav1.ObjectMeta{Name: "e2", CreationTimestamp: metav1.Time{Time: now}},
 	})
@@ -415,10 +411,8 @@ func TestPrintWatchEvent(t *testing.T) {
 	defer os.Remove(tmpFile.Name())
 	defer tmpFile.Close()
 
-	// Default format
 	printWatchEvent(tmpFile, e, "color")
 
-	// JSON format
 	tmpFile2, _ := os.CreateTemp("", "kube-events-watch-*.txt")
 	defer os.Remove(tmpFile2.Name())
 	defer tmpFile2.Close()
@@ -714,7 +708,6 @@ func TestRunEvents_ColorSummaryOnly(t *testing.T) {
 }
 
 func TestExtractFlags_MissingFlag(t *testing.T) {
-	// A command with no flags registered should fail
 	cmd := &cobra.Command{Use: "test"}
 	_, err := extractFlags(cmd)
 	if err == nil {

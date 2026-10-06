@@ -42,8 +42,7 @@ func TestResolveWatchNamespaces(t *testing.T) {
 	}
 }
 
-// Every namespace on the command line must get its own watch — the regression
-// this replaces silently watched only the first.
+// Guards a regression where watch mode watched only the first --namespace.
 func TestStartWatchers_OpensOneWatchPerNamespace(t *testing.T) {
 	var opened []string
 	fakes := map[string]*watch.FakeWatcher{}
@@ -74,7 +73,6 @@ func TestStartWatchers_OpensOneWatchPerNamespace(t *testing.T) {
 		}
 	}
 
-	// An event from any namespace must reach the merged stream.
 	go func() {
 		fakes["b"].Add(k8sEvent("Pod", "from-b", "b", "Scheduled", "Normal"))
 	}()
@@ -128,8 +126,6 @@ func TestStartWatchers_MergesEveryNamespace(t *testing.T) {
 	}
 }
 
-// A failure part-way through must stop the watchers already opened rather than
-// leaking them.
 func TestStartWatchers_StopsOpenedWatchersOnFailure(t *testing.T) {
 	var opened []*watch.FakeWatcher
 	wantErr := errors.New("forbidden")

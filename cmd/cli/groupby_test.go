@@ -36,8 +36,7 @@ func TestValidateGroupBy(t *testing.T) {
 	}
 }
 
-// countingLister records whether the API was reached, so the tests can assert
-// that validation happens first.
+// countingLister counts API calls so tests can assert validation runs first.
 type countingLister struct {
 	calls int
 }
@@ -47,7 +46,6 @@ func (c *countingLister) ListEvents(_ context.Context, _ string) ([]event.Event,
 	return nil, nil
 }
 
-// An invalid --group-by must fail before any events are listed.
 func TestRunEvents_InvalidGroupBySkipsTheAPI(t *testing.T) {
 	lister := &countingLister{}
 	w, _ := captureFile(t)
@@ -61,8 +59,6 @@ func TestRunEvents_InvalidGroupBySkipsTheAPI(t *testing.T) {
 	}
 }
 
-// The watch path rejects the same value, with the same message, even though it
-// never acts on --group-by.
 func TestRunWatch_RejectsInvalidGroupBy(t *testing.T) {
 	err := runWatch(eventFlags{since: "5m", groupBy: "bogus", kubeconfig: missingKubeconfig(t)})
 	if err == nil {
@@ -77,7 +73,6 @@ func TestRunWatch_RejectsInvalidGroupBy(t *testing.T) {
 	}
 }
 
-// Both modes must reject a bad value identically, so the message cannot drift.
 func TestGroupByRejectionIsIdenticalAcrossModes(t *testing.T) {
 	const bad = "namesapce"
 

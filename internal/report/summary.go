@@ -58,7 +58,6 @@ func NewSummary(groups []event.ResourceGroup, events []event.Event, groupMode st
 	return s
 }
 
-// groupHeader returns the display header for a group based on the grouping mode.
 func (s *Summary) groupHeader(g event.ResourceGroup) string {
 	if s.GroupMode != "" && s.GroupMode != "resource" {
 		return g.Key.Label
@@ -69,7 +68,6 @@ func (s *Summary) groupHeader(g event.ResourceGroup) string {
 	return fmt.Sprintf("%s/%s", g.Key.Kind, g.Key.Name)
 }
 
-// groupNoun returns the noun for the group count label.
 func (s *Summary) groupNoun() string {
 	switch s.GroupMode {
 	case "namespace":

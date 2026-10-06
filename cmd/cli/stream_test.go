@@ -227,7 +227,6 @@ func TestStreamEvents_StopsOnContextCancel(t *testing.T) {
 	}
 }
 
-// A closed stream ends the loop.
 func TestStreamEvents_StopsOnClosedChannel(t *testing.T) {
 	w, _ := captureFile(t)
 	ch := make(chan watch.Event)

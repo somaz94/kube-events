@@ -78,7 +78,6 @@ func TestRunRoot_DispatchesToWatch(t *testing.T) {
 }
 
 func TestRunRoot_FlagExtractionFailure(t *testing.T) {
-	// A command missing the expected flags makes extractFlags fail.
 	cmd := &cobra.Command{Use: "bare"}
 
 	if err := runRoot(cmd, nil); err == nil {
@@ -86,7 +85,6 @@ func TestRunRoot_FlagExtractionFailure(t *testing.T) {
 	}
 }
 
-// The same ordering guarantee, asserted directly on runWatch.
 func TestRunWatch_ValidatesSinceBeforeConnecting(t *testing.T) {
 	err := runWatch(eventFlags{since: "nope", kubeconfig: missingKubeconfig(t)})
 	if err == nil {

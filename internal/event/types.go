@@ -2,7 +2,7 @@ package event
 
 import "time"
 
-// Event represents a Kubernetes event with relevant fields.
+// Event is the normalized form of a Kubernetes event.
 type Event struct {
 	Type           string
 	Reason         string
@@ -47,12 +47,12 @@ func ValidGroupBy(s string) bool {
 	return false
 }
 
-// ResourceKey uniquely identifies a resource involved in events.
+// ResourceKey identifies a group: Kind/Name/Namespace in resource mode, Label otherwise.
 type ResourceKey struct {
 	Kind      string
 	Name      string
 	Namespace string
-	Label     string // display label for non-resource grouping modes
+	Label     string
 }
 
 // ResourceGroup holds the events that share one group key.
