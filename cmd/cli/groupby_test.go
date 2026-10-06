@@ -60,7 +60,7 @@ func TestRunEvents_InvalidGroupBySkipsTheAPI(t *testing.T) {
 }
 
 func TestRunWatch_RejectsInvalidGroupBy(t *testing.T) {
-	err := runWatch(eventFlags{since: "5m", groupBy: "bogus", kubeconfig: missingKubeconfig(t)})
+	err := runWatch(eventFlags{since: "5m", groupBy: "bogus", kubeconfig: missingKubeconfig(t)}, nil)
 	if err == nil {
 		t.Fatal("runWatch() error = nil, want the invalid --group-by to fail")
 	}
@@ -78,7 +78,7 @@ func TestGroupByRejectionIsIdenticalAcrossModes(t *testing.T) {
 
 	w, _ := captureFile(t)
 	listErr := runEvents(&countingLister{}, eventFlags{output: "color", since: "1h", groupBy: bad}, w)
-	watchErr := runWatch(eventFlags{since: "5m", groupBy: bad, kubeconfig: missingKubeconfig(t)})
+	watchErr := runWatch(eventFlags{since: "5m", groupBy: bad, kubeconfig: missingKubeconfig(t)}, nil)
 
 	if listErr == nil || watchErr == nil {
 		t.Fatalf("both modes must fail: list=%v watch=%v", listErr, watchErr)
@@ -92,7 +92,7 @@ func TestGroupByRejectionIsIdenticalAcrossModes(t *testing.T) {
 // there, so existing command lines keep working.
 func TestRunWatch_AcceptsValidGroupBy(t *testing.T) {
 	for _, g := range []string{"", "resource", "namespace", "kind", "reason"} {
-		err := runWatch(eventFlags{since: "5m", groupBy: g, kubeconfig: missingKubeconfig(t)})
+		err := runWatch(eventFlags{since: "5m", groupBy: g, kubeconfig: missingKubeconfig(t)}, nil)
 		if err == nil {
 			t.Fatalf("runWatch(groupBy=%q) error = nil, want it to proceed to the kubeconfig", g)
 		}

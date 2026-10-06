@@ -74,7 +74,7 @@ func startWatchers(ctx context.Context, start watchFunc, namespaces []string) (<
 	return merged, stop, nil
 }
 
-func runWatch(f eventFlags) error {
+func runWatch(f eventFlags, w *os.File) error {
 	// Validate flags before connecting so a bad value fails without opening a watch.
 	since, err := parseSince(f.since)
 	if err != nil {
@@ -95,15 +95,8 @@ func runWatch(f eventFlags) error {
 		return fmt.Errorf("failed to create clientset: %w", err)
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	sigCh := make(chan os.Signal, 1)
-	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
-	go func() {
-		<-sigCh
-		cancel()
-	}()
+	ctx, stopSignals := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stopSignals()
 
 	start := func(ctx context.Context, namespace string) (watch.Interface, error) {
 		return cs.CoreV1().Events(namespace).Watch(ctx, metav1.ListOptions{})
@@ -125,7 +118,7 @@ func runWatch(f eventFlags) error {
 
 	fmt.Fprintf(os.Stderr, "Watching events (press Ctrl+C to stop)...\n\n")
 
-	return streamEvents(ctx, merged, filterOpts, f.output, os.Stdout)
+	return streamEvents(ctx, merged, filterOpts, f.output, w)
 }
 
 // streamEvents prints each Added/Modified event that passes opts until ctx is

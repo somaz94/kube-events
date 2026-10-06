@@ -86,7 +86,7 @@ func TestRunRoot_FlagExtractionFailure(t *testing.T) {
 }
 
 func TestRunWatch_ValidatesSinceBeforeConnecting(t *testing.T) {
-	err := runWatch(eventFlags{since: "nope", kubeconfig: missingKubeconfig(t)})
+	err := runWatch(eventFlags{since: "nope", kubeconfig: missingKubeconfig(t)}, nil)
 	if err == nil {
 		t.Fatal("runWatch() error = nil, want the invalid --since to fail")
 	}
@@ -96,7 +96,7 @@ func TestRunWatch_ValidatesSinceBeforeConnecting(t *testing.T) {
 }
 
 func TestRunWatch_KubeconfigFailure(t *testing.T) {
-	err := runWatch(eventFlags{since: "5m", kubeconfig: missingKubeconfig(t)})
+	err := runWatch(eventFlags{since: "5m", kubeconfig: missingKubeconfig(t)}, nil)
 	if err == nil {
 		t.Fatal("runWatch() error = nil, want loading the kubeconfig to fail")
 	}
@@ -120,7 +120,7 @@ func TestSinceRejectionIsIdenticalAcrossModes(t *testing.T) {
 
 	w, _ := captureFile(t)
 	listErr := runEvents(&countingLister{}, eventFlags{output: "color", since: bad}, w)
-	watchErr := runWatch(eventFlags{since: bad, kubeconfig: missingKubeconfig(t)})
+	watchErr := runWatch(eventFlags{since: bad, kubeconfig: missingKubeconfig(t)}, nil)
 
 	if listErr == nil || watchErr == nil {
 		t.Fatalf("both modes must fail: list=%v watch=%v", listErr, watchErr)

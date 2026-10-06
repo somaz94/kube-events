@@ -113,7 +113,7 @@ func runRoot(cmd *cobra.Command, args []string) error {
 	}
 
 	if f.watch {
-		return runWatch(f)
+		return runWatch(f, os.Stdout)
 	}
 
 	c, err := client.New(f.kubeconfig, f.kubeContext)
