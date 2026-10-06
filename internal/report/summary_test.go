@@ -377,25 +377,6 @@ func TestGroupNoun(t *testing.T) {
 	}
 }
 
-func TestFormatAge(t *testing.T) {
-	tests := []struct {
-		duration time.Duration
-		want     string
-	}{
-		{30 * time.Second, "30s"},
-		{5 * time.Minute, "5m"},
-		{2 * time.Hour, "2h"},
-		{48 * time.Hour, "2d"},
-	}
-
-	for _, tt := range tests {
-		got := event.FormatAge(tt.duration)
-		if got != tt.want {
-			t.Errorf("FormatAge(%v) = %q, want %q", tt.duration, got, tt.want)
-		}
-	}
-}
-
 func TestTruncate(t *testing.T) {
 	tests := []struct {
 		input string

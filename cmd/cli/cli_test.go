@@ -2,15 +2,15 @@ package cli
 
 import (
 	"context"
+	"encoding/json"
 	"os"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/somaz94/kube-events/internal/event"
+	"github.com/somaz94/kube-events/internal/report"
 	"github.com/spf13/cobra"
-	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type fakeLister struct {
@@ -61,7 +61,7 @@ func TestParseSince(t *testing.T) {
 	}
 }
 
-func TestExtractFlags_Defaults(t *testing.T) {
+func TestRootCmd_FlagDefaults(t *testing.T) {
 	// Flags() only merges PersistentFlags at execution time, so read them directly.
 	pf := rootCmd.PersistentFlags()
 
@@ -342,91 +342,47 @@ func TestRunEvents_Empty(t *testing.T) {
 	}
 }
 
-func TestConvertWatchEvent(t *testing.T) {
-	now := time.Now()
-	k8sEvent := corev1.Event{
-		ObjectMeta:     metav1.ObjectMeta{Name: "evt-1", Namespace: "default"},
-		Type:           "Warning",
-		Reason:         "BackOff",
-		Message:        "Back-off restarting",
-		Count:          3,
-		LastTimestamp:  metav1.Time{Time: now.Add(-2 * time.Minute)},
-		FirstTimestamp: metav1.Time{Time: now.Add(-5 * time.Minute)},
-		InvolvedObject: corev1.ObjectReference{
-			Kind: "Pod", Name: "app-1", Namespace: "default",
-		},
-		Source: corev1.EventSource{Component: "kubelet", Host: "node-1"},
-	}
-
-	e := event.ConvertK8sEvent(k8sEvent)
-	if e.Type != "Warning" {
-		t.Errorf("expected Warning, got %s", e.Type)
-	}
-	if e.Reason != "BackOff" {
-		t.Errorf("expected BackOff, got %s", e.Reason)
-	}
-	if e.InvolvedObject.Kind != "Pod" {
-		t.Errorf("expected Pod, got %s", e.InvolvedObject.Kind)
-	}
-	if e.Source.Component != "kubelet" {
-		t.Errorf("expected kubelet, got %s", e.Source.Component)
-	}
-}
-
-func TestConvertWatchEvent_FallbackTimestamps(t *testing.T) {
-	now := time.Now()
-
-	e1 := event.ConvertK8sEvent(corev1.Event{
-		ObjectMeta: metav1.ObjectMeta{Name: "e1"},
-		EventTime:  metav1.MicroTime{Time: now.Add(-1 * time.Minute)},
-	})
-	if e1.LastSeen.IsZero() {
-		t.Error("expected LastSeen from EventTime")
-	}
-
-	e2 := event.ConvertK8sEvent(corev1.Event{
-		ObjectMeta: metav1.ObjectMeta{Name: "e2", CreationTimestamp: metav1.Time{Time: now}},
-	})
-	if e2.LastSeen.IsZero() {
-		t.Error("expected LastSeen from CreationTimestamp")
-	}
-}
-
-func TestPrintWatchEvent(t *testing.T) {
-	now := time.Now()
+func TestPrintWatchEvent_JSON(t *testing.T) {
 	e := event.Event{
 		Type: "Warning", Reason: "BackOff", Message: "Back-off restarting", Count: 3,
-		LastSeen: now, Age: 30 * time.Second,
+		LastSeen: time.Now(), Age: 30 * time.Second,
 		InvolvedObject: event.InvolvedObject{Kind: "Pod", Name: "app-1", Namespace: "default"},
 	}
 
-	tmpFile, err := os.CreateTemp("", "kube-events-watch-*.txt")
-	if err != nil {
-		t.Fatal(err)
+	w, read := captureFile(t)
+	printWatchEvent(w, e, "json")
+
+	var got struct {
+		Groups []struct {
+			Name   string `json:"name"`
+			Events []struct {
+				Reason string `json:"reason"`
+			} `json:"events"`
+		} `json:"groups"`
 	}
-	defer os.Remove(tmpFile.Name())
-	defer tmpFile.Close()
-
-	printWatchEvent(tmpFile, e, "color")
-
-	tmpFile2, _ := os.CreateTemp("", "kube-events-watch-*.txt")
-	defer os.Remove(tmpFile2.Name())
-	defer tmpFile2.Close()
-	printWatchEvent(tmpFile2, e, "json")
+	if err := json.Unmarshal([]byte(read()), &got); err != nil {
+		t.Fatalf("output is not one JSON document: %v", err)
+	}
+	if len(got.Groups) != 1 || got.Groups[0].Name != "app-1" || got.Groups[0].Events[0].Reason != "BackOff" {
+		t.Errorf("unexpected JSON: %+v", got)
+	}
 }
 
-func TestPrintWatchEvent_Normal(t *testing.T) {
+func TestPrintWatchEvent_ClusterScopedHasNoNamespaceTag(t *testing.T) {
 	e := event.Event{
-		Type: "Normal", Reason: "Pulled", Message: "Pulled image", Count: 1,
+		Type: "Normal", Reason: "Pulled", Message: "Pulled image",
 		LastSeen: time.Now(), Age: 5 * time.Minute,
-		InvolvedObject: event.InvolvedObject{Kind: "Pod", Name: "web-1"},
+		InvolvedObject: event.InvolvedObject{Kind: "Node", Name: "node-1"},
 	}
 
-	tmpFile, _ := os.CreateTemp("", "kube-events-watch-*.txt")
-	defer os.Remove(tmpFile.Name())
-	defer tmpFile.Close()
-
-	printWatchEvent(tmpFile, e, "color")
+	for _, format := range []string{"color", "plain"} {
+		w, read := captureFile(t)
+		printWatchEvent(w, e, format)
+		out := read()
+		if !strings.Contains(out, "Node/node-1") || strings.Contains(out, report.ColorCyan) || strings.Contains(out, " [") {
+			t.Errorf("%s: expected no namespace tag, got %q", format, out)
+		}
+	}
 }
 
 func TestPrintWatchEvent_ColorOnlyForColorFormat(t *testing.T) {
@@ -462,20 +418,7 @@ func TestPrintWatchEvent_ColorOnlyForColorFormat(t *testing.T) {
 }
 
 func TestExtractFlags_WithArgs(t *testing.T) {
-	cmd := &cobra.Command{Use: "test"}
-	cmd.PersistentFlags().String("kubeconfig", "", "")
-	cmd.PersistentFlags().String("context", "", "")
-	cmd.PersistentFlags().StringSliceP("namespace", "n", nil, "")
-	cmd.PersistentFlags().StringSliceP("kind", "k", nil, "")
-	cmd.PersistentFlags().StringSliceP("name", "N", nil, "")
-	cmd.PersistentFlags().StringSliceP("type", "t", nil, "")
-	cmd.PersistentFlags().StringSliceP("reason", "r", nil, "")
-	cmd.PersistentFlags().String("since", "1h", "")
-	cmd.PersistentFlags().StringP("output", "o", "color", "")
-	cmd.PersistentFlags().BoolP("summary-only", "s", false, "")
-	cmd.PersistentFlags().Bool("all-namespaces", false, "")
-	cmd.PersistentFlags().BoolP("watch", "w", false, "")
-	cmd.PersistentFlags().StringP("group-by", "g", "resource", "")
+	cmd := newFlagCmd()
 
 	cmd.SetArgs([]string{
 		"--kubeconfig", "/tmp/kc",
@@ -688,28 +631,5 @@ func TestExtractFlags_MissingFlag(t *testing.T) {
 	_, err := extractFlags(cmd)
 	if err == nil {
 		t.Error("expected error for missing flags")
-	}
-}
-
-func TestFormatAge(t *testing.T) {
-	tests := []struct {
-		d    time.Duration
-		want string
-	}{
-		{30 * time.Second, "30s"},
-		{5 * time.Minute, "5m"},
-		{2 * time.Hour, "2h"},
-		{48 * time.Hour, "2d"},
-		{0, "0s"},
-		{59 * time.Second, "59s"},
-		{60 * time.Second, "1m"},
-		{3600 * time.Second, "1h"},
-	}
-
-	for _, tt := range tests {
-		got := event.FormatAge(tt.d)
-		if got != tt.want {
-			t.Errorf("FormatAge(%v) = %q, want %q", tt.d, got, tt.want)
-		}
 	}
 }

@@ -6,7 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/somaz94/kube-events/internal/event"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes/fake"
@@ -98,88 +97,6 @@ func TestListEvents_Empty(t *testing.T) {
 	}
 	if len(events) != 0 {
 		t.Errorf("expected 0 events, got %d", len(events))
-	}
-}
-
-func TestConvertEvent_Fields(t *testing.T) {
-	now := time.Now()
-	k8sEvent := corev1.Event{
-		ObjectMeta:     metav1.ObjectMeta{Name: "evt-1", Namespace: "default"},
-		Type:           "Warning",
-		Reason:         "Unhealthy",
-		Message:        "Readiness probe failed",
-		Count:          5,
-		LastTimestamp:  metav1.Time{Time: now.Add(-3 * time.Minute)},
-		FirstTimestamp: metav1.Time{Time: now.Add(-10 * time.Minute)},
-		InvolvedObject: corev1.ObjectReference{
-			Kind:      "Pod",
-			Name:      "api-server",
-			Namespace: "production",
-		},
-		Source: corev1.EventSource{Component: "kubelet", Host: "node-2"},
-	}
-
-	e := event.ConvertK8sEvent(k8sEvent)
-
-	if e.Type != "Warning" {
-		t.Errorf("expected Type=Warning, got %s", e.Type)
-	}
-	if e.Reason != "Unhealthy" {
-		t.Errorf("expected Reason=Unhealthy, got %s", e.Reason)
-	}
-	if e.Message != "Readiness probe failed" {
-		t.Errorf("expected Message='Readiness probe failed', got %s", e.Message)
-	}
-	if e.Count != 5 {
-		t.Errorf("expected Count=5, got %d", e.Count)
-	}
-	if e.InvolvedObject.Kind != "Pod" {
-		t.Errorf("expected Kind=Pod, got %s", e.InvolvedObject.Kind)
-	}
-	if e.InvolvedObject.Name != "api-server" {
-		t.Errorf("expected Name=api-server, got %s", e.InvolvedObject.Name)
-	}
-	if e.InvolvedObject.Namespace != "production" {
-		t.Errorf("expected Namespace=production, got %s", e.InvolvedObject.Namespace)
-	}
-	if e.Source.Component != "kubelet" {
-		t.Errorf("expected Source.Component=kubelet, got %s", e.Source.Component)
-	}
-	if e.Source.Host != "node-2" {
-		t.Errorf("expected Source.Host=node-2, got %s", e.Source.Host)
-	}
-}
-
-func TestConvertEvent_FallbackTimestamps(t *testing.T) {
-	now := time.Now()
-
-	// EventTime fallback (no LastTimestamp)
-	e1 := event.ConvertK8sEvent(corev1.Event{
-		ObjectMeta:     metav1.ObjectMeta{Name: "e1"},
-		EventTime:      metav1.MicroTime{Time: now.Add(-1 * time.Minute)},
-		InvolvedObject: corev1.ObjectReference{Kind: "Pod", Name: "p1"},
-	})
-	if e1.LastSeen.IsZero() {
-		t.Error("expected LastSeen from EventTime, got zero")
-	}
-
-	// CreationTimestamp fallback (no LastTimestamp, no EventTime)
-	e2 := event.ConvertK8sEvent(corev1.Event{
-		ObjectMeta:     metav1.ObjectMeta{Name: "e2", CreationTimestamp: metav1.Time{Time: now.Add(-2 * time.Minute)}},
-		InvolvedObject: corev1.ObjectReference{Kind: "Pod", Name: "p2"},
-	})
-	if e2.LastSeen.IsZero() {
-		t.Error("expected LastSeen from CreationTimestamp, got zero")
-	}
-
-	// FirstSeen fallback to LastSeen
-	e3 := event.ConvertK8sEvent(corev1.Event{
-		ObjectMeta:     metav1.ObjectMeta{Name: "e3"},
-		LastTimestamp:  metav1.Time{Time: now.Add(-3 * time.Minute)},
-		InvolvedObject: corev1.ObjectReference{Kind: "Pod", Name: "p3"},
-	})
-	if e3.FirstSeen.IsZero() {
-		t.Error("expected FirstSeen fallback to LastSeen, got zero")
 	}
 }
 

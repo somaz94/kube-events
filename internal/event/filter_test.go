@@ -259,7 +259,7 @@ func TestGroupEvents_Namespace(t *testing.T) {
 	events := []Event{
 		newEvent("Warning", "Pod", "app-1", "prod", "BackOff", "back-off", 5*time.Minute),
 		newEvent("Normal", "Pod", "app-2", "prod", "Scheduled", "scheduled", 3*time.Minute),
-		newEvent("Normal", "Deployment", "api", "staging", "ScalingUp", "scaled", 8*time.Minute),
+		newEvent("Normal", "Deployment", "api", "staging", "ScalingUp", "scaled", 1*time.Minute),
 	}
 
 	groups := GroupEvents(events, GroupNamespace)
@@ -293,7 +293,7 @@ func TestGroupEvents_Reason(t *testing.T) {
 	events := []Event{
 		newEvent("Warning", "Pod", "app-1", "default", "BackOff", "back-off", 5*time.Minute),
 		newEvent("Warning", "Pod", "app-2", "default", "BackOff", "back-off again", 3*time.Minute),
-		newEvent("Normal", "Pod", "app-3", "default", "Scheduled", "scheduled", 8*time.Minute),
+		newEvent("Normal", "Pod", "app-3", "default", "Scheduled", "scheduled", 1*time.Minute),
 	}
 
 	groups := GroupEvents(events, GroupReason)
