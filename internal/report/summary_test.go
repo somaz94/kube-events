@@ -89,7 +89,6 @@ func TestPrintColor(t *testing.T) {
 
 	out := buf.String()
 
-	// Should contain resource headers
 	if !strings.Contains(out, "Pod/app-1") {
 		t.Error("expected Pod/app-1 in output")
 	}
@@ -97,17 +96,14 @@ func TestPrintColor(t *testing.T) {
 		t.Error("expected Deployment/api in output")
 	}
 
-	// Should contain event reasons
 	if !strings.Contains(out, "BackOff") {
 		t.Error("expected BackOff reason in output")
 	}
 
-	// Should contain summary
 	if !strings.Contains(out, "Summary:") {
 		t.Error("expected Summary line in output")
 	}
 
-	// Should contain ANSI color codes
 	if !strings.Contains(out, "\033[") {
 		t.Error("expected ANSI color codes in output")
 	}
@@ -158,7 +154,6 @@ func TestPrintPlain(t *testing.T) {
 
 	out := buf.String()
 
-	// Should NOT contain ANSI codes
 	if strings.Contains(out, "\033[") {
 		t.Error("plain output should not contain ANSI color codes")
 	}
@@ -181,13 +176,11 @@ func TestPrintJSON(t *testing.T) {
 		t.Fatalf("PrintJSON error: %v", err)
 	}
 
-	// Should be valid JSON
 	var parsed map[string]interface{}
 	if err := json.Unmarshal(buf.Bytes(), &parsed); err != nil {
 		t.Fatalf("invalid JSON output: %v", err)
 	}
 
-	// Check summary fields
 	summary, ok := parsed["summary"].(map[string]interface{})
 	if !ok {
 		t.Fatal("expected summary field in JSON")
@@ -199,7 +192,6 @@ func TestPrintJSON(t *testing.T) {
 		t.Errorf("expected warningCount=2, got %v", summary["warningCount"])
 	}
 
-	// Check groups
 	groupsJSON, ok := parsed["groups"].([]interface{})
 	if !ok {
 		t.Fatal("expected groups field in JSON")

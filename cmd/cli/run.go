@@ -100,9 +100,6 @@ func parseSince(s string) (time.Duration, error) {
 	return d, nil
 }
 
-// validateGroupBy rejects an unusable --group-by value. Both the listing and the
-// watch path share it so a typo is reported identically either way, even though
-// only the listing path acts on the value.
 func validateGroupBy(groupBy string) error {
 	if event.ValidGroupBy(groupBy) {
 		return nil
@@ -154,7 +151,6 @@ func runEvents(lister client.EventLister, f eventFlags, w *os.File) error {
 		allEvents = append(allEvents, events...)
 	}
 
-	// Apply filters
 	filtered := event.Filter(allEvents, event.FilterOptions{
 		Since:   since,
 		Kinds:   f.kinds,
@@ -163,13 +159,10 @@ func runEvents(lister client.EventLister, f eventFlags, w *os.File) error {
 		Reasons: f.reasons,
 	})
 
-	// Apply grouping; the value was validated before any listing happened.
 	groups := event.GroupEvents(filtered, event.GroupBy(f.groupBy))
 
-	// Build summary
 	summary := report.NewSummary(groups, filtered, f.groupBy)
 
-	// Output
 	switch f.output {
 	case "json":
 		return summary.PrintJSON(w)

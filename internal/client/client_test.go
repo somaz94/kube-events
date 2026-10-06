@@ -71,7 +71,6 @@ func TestListEvents(t *testing.T) {
 		t.Errorf("expected 3 events, got %d", len(events))
 	}
 
-	// List namespace-scoped events
 	events, err = c.ListEvents(ctx, "default")
 	if err != nil {
 		t.Fatalf("ListEvents(default) error: %v", err)

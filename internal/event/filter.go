@@ -39,7 +39,7 @@ func Filter(events []Event, opts FilterOptions) []Event {
 		result = append(result, e)
 	}
 
-	// Sort by LastSeen descending (newest first)
+	// Newest first: sortGroupKeys reads each group's [0] as its newest event.
 	sort.Slice(result, func(i, j int) bool {
 		return result[i].LastSeen.After(result[j].LastSeen)
 	})

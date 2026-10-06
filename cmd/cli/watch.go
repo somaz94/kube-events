@@ -105,7 +105,6 @@ func runWatch(f eventFlags) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// Handle signals
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
@@ -136,12 +135,8 @@ func runWatch(f eventFlags) error {
 	return streamEvents(ctx, merged, filterOpts, f.output, os.Stdout)
 }
 
-// streamEvents consumes a watch stream, applies the filters and prints every
-// surviving event. It returns when the context is cancelled or the stream
-// closes.
-//
-// Taking the channel rather than the watcher keeps the loop independent of how
-// the stream was opened, so tests can drive it from watch.NewFake().
+// streamEvents prints each Added/Modified event that passes opts until ctx is
+// cancelled or ch closes. It takes a channel because runWatch feeds it a fan-in.
 func streamEvents(
 	ctx context.Context,
 	ch <-chan watch.Event,
@@ -168,7 +163,6 @@ func streamEvents(
 
 			e := event.ConvertK8sEvent(*k8sEvent)
 
-			// Apply filters
 			filtered := event.Filter([]event.Event{e}, opts)
 			if len(filtered) == 0 {
 				continue

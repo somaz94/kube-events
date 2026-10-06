@@ -158,7 +158,6 @@ func TestGroupByResource(t *testing.T) {
 		t.Fatalf("expected 3 groups, got %d", len(groups))
 	}
 
-	// First group should have warnings (app-1 or app-2)
 	if !hasWarningInGroup(groups[0]) {
 		t.Error("expected first group to have warnings")
 	}
@@ -234,7 +233,6 @@ func TestGroupEvents_Resource(t *testing.T) {
 	if len(groups) != 2 {
 		t.Fatalf("expected 2 groups, got %d", len(groups))
 	}
-	// Warning group should be first
 	if !hasWarningInGroup(groups[0]) {
 		t.Error("expected first group to have warnings")
 	}
