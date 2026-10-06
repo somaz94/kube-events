@@ -2,10 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased (2026-10-06)
+## [v0.3.5](https://github.com/somaz94/kube-events/compare/v0.3.4...v0.3.5) (2026-10-06)
+
+### Bug Fixes
+
+- run demo commands without eval so quoted paths survive ([2ffbaee](https://github.com/somaz94/kube-events/commit/2ffbaee1d5fc919afcba11d198b3417f35fa3e48))
+- report an invalid --since identically in list and watch mode ([1c2f411](https://github.com/somaz94/kube-events/commit/1c2f411af8ff2887db420664261def76e559dd5b))
+
+### Code Refactoring
+
+- drop the no-op toUpper on --type values ([d5d7549](https://github.com/somaz94/kube-events/commit/d5d7549d5709fa8dc1cfb24dd4677c3c4b32c6a6))
+
+### Continuous Integration
+
+- pin kind and scope the e2e workflow token and triggers ([707f974](https://github.com/somaz94/kube-events/commit/707f9747ce567a7e03eee7736f2661e8e3410368))
+- run golangci-lint in CI ([67d03a2](https://github.com/somaz94/kube-events/commit/67d03a28c485b6bbbb180ff91a9ba2102092a860))
 
 ### Chores
 
+- classify scoped and breaking commits in create-pr.sh ([b52d980](https://github.com/somaz94/kube-events/commit/b52d980b27bebcf103cbfc3080e08280d519f26a))
+- mark cover-html as phony ([1e313d1](https://github.com/somaz94/kube-events/commit/1e313d1820d999b33bcc128eeb5176ee033128f3))
 - trim boilerplate comments in repo config and scripts ([80075cc](https://github.com/somaz94/kube-events/commit/80075cc511843f2df278fd7965d346fa6d625c8e))
 
 ### Contributors
