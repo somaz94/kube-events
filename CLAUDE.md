@@ -11,7 +11,7 @@ make build           # Build binary
 make test            # Unit tests with -race and coverage
 make lint            # golangci-lint
 make test-e2e-watch  # Watch mode across namespaces (needs a kind cluster)
-make demo            # Deploy demo resources into the CURRENT context (`make demo-clean` removes them)
+make demo            # Deploy demo resources; local contexts only (`make demo-clean` removes them)
 ```
 
 `make help` lists every target.

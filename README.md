@@ -199,12 +199,14 @@ and `-o table` the same line without color.
 
 ## Quick Demo
 
-Run the demo against a live cluster:
+Run the demo against a local cluster:
 
 ```bash
 make demo        # Deploy resources → show events → detect warnings
 make demo-clean  # Remove demo resources from cluster
 ```
+
+The demo deploys crash-looping and unpullable pods, so it refuses any context that is not a local cluster (kind, k3d, minikube, docker-desktop, orbstack, rancher-desktop). Set `ALLOW_ANY_CONTEXT=1` to override.
 
 <br/>
 

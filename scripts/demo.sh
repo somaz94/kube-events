@@ -24,6 +24,19 @@ run() {
   echo ""
 }
 
+CONTEXT="$(kubectl config current-context 2>/dev/null || echo '')"
+case "$CONTEXT" in
+  kind-*|k3d-*|minikube|docker-desktop|orbstack|rancher-desktop) ;;
+  *)
+    if [ "${ALLOW_ANY_CONTEXT:-0}" != "1" ]; then
+      echo "refusing to deploy the demo into context '${CONTEXT:-<none>}': it creates crash-looping and unpullable pods." >&2
+      echo "Use a local cluster (kind, k3d, minikube, docker-desktop, orbstack), or set ALLOW_ANY_CONTEXT=1 to override." >&2
+      exit 1
+    fi
+    echo "WARNING: deploying the demo into non-local context '$CONTEXT' (ALLOW_ANY_CONTEXT=1)"
+    ;;
+esac
+
 if [ ! -f "$BINARY" ]; then
   echo "Building kube-events..."
   (cd "$PROJECT_DIR" && make build)
