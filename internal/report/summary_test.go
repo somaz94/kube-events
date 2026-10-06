@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 	"time"
+	"unicode/utf8"
 
 	"github.com/somaz94/kube-events/internal/event"
 )
@@ -405,12 +406,50 @@ func TestTruncate(t *testing.T) {
 		{"this is a very long string", 10, "this is..."},
 		{"exact", 5, "exact"},
 		{"", 5, ""},
+		{"가나다라마바사", 5, "가나..."},
+		{"가나다라", 4, "가나다라"},
+		{"가나다라", 2, "가나"},
 	}
 
 	for _, tt := range tests {
 		got := truncate(tt.input, tt.max)
 		if got != tt.want {
 			t.Errorf("truncate(%q, %d) = %q, want %q", tt.input, tt.max, got, tt.want)
+		}
+		if !utf8.ValidString(got) {
+			t.Errorf("truncate(%q, %d) returned invalid UTF-8 %q", tt.input, tt.max, got)
+		}
+	}
+}
+
+func TestSummaryCountUsesGroupNoun(t *testing.T) {
+	groups := []event.ResourceGroup{
+		{Key: event.ResourceKey{Label: "default"}, Events: []event.Event{
+			newEvent("Warning", "Pod", "app-1", "default", "BackOff", "back-off", time.Minute),
+		}},
+		{Key: event.ResourceKey{Label: "prod"}, Events: []event.Event{
+			newEvent("Normal", "Pod", "api", "prod", "Pulled", "pulled", time.Minute),
+		}},
+	}
+	var events []event.Event
+	for _, g := range groups {
+		events = append(events, g.Events...)
+	}
+	s := NewSummary(groups, events, "namespace")
+
+	printers := map[string]func(*bytes.Buffer) error{
+		"color": func(b *bytes.Buffer) error { return s.PrintColor(b, true) },
+		"plain": func(b *bytes.Buffer) error { return s.PrintPlain(b, true) },
+		"table": func(b *bytes.Buffer) error { return s.PrintTable(b) },
+	}
+	for name, printFn := range printers {
+		var buf bytes.Buffer
+		if err := printFn(&buf); err != nil {
+			t.Fatalf("%s: %v", name, err)
+		}
+		out := buf.String()
+		if !strings.Contains(out, "2 namespaces") || strings.Contains(out, "resources") {
+			t.Errorf("%s: expected the count labelled \"2 namespaces\", got:\n%s", name, out)
 		}
 	}
 }

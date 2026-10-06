@@ -242,15 +242,15 @@ func (s *Summary) PrintTable(w io.Writer) error {
 	}
 
 	fmt.Fprintln(w, strings.Repeat("-", 120))
-	fmt.Fprintf(w, "Total: %d events, %d resources (Warning: %d, Normal: %d)\n",
-		s.TotalEvents, s.Resources, s.WarningCount, s.NormalCount)
+	fmt.Fprintf(w, "Total: %d events, %d %s (Warning: %d, Normal: %d)\n",
+		s.TotalEvents, s.Resources, s.groupNoun(), s.WarningCount, s.NormalCount)
 	return nil
 }
 
 func (s *Summary) printSummaryLine(w io.Writer, colorize bool) error {
 	if colorize {
-		fmt.Fprintf(w, "%sSummary:%s %d events, %d resources",
-			ColorBold, ColorReset, s.TotalEvents, s.Resources)
+		fmt.Fprintf(w, "%sSummary:%s %d events, %d %s",
+			ColorBold, ColorReset, s.TotalEvents, s.Resources, s.groupNoun())
 		if s.WarningCount > 0 {
 			fmt.Fprintf(w, " | %sWarning: %d%s", ColorYellow, s.WarningCount, ColorReset)
 		}
@@ -259,18 +259,20 @@ func (s *Summary) printSummaryLine(w io.Writer, colorize bool) error {
 		}
 		fmt.Fprintln(w)
 	} else {
-		fmt.Fprintf(w, "Summary: %d events, %d resources (Warning: %d, Normal: %d)\n",
-			s.TotalEvents, s.Resources, s.WarningCount, s.NormalCount)
+		fmt.Fprintf(w, "Summary: %d events, %d %s (Warning: %d, Normal: %d)\n",
+			s.TotalEvents, s.Resources, s.groupNoun(), s.WarningCount, s.NormalCount)
 	}
 	return nil
 }
 
+// truncate counts runes, not bytes, so a multi-byte character is never split.
 func truncate(s string, max int) string {
-	if len(s) <= max {
+	r := []rune(s)
+	if len(r) <= max {
 		return s
 	}
 	if max < 4 {
-		return s[:max]
+		return string(r[:max])
 	}
-	return s[:max-3] + "..."
+	return string(r[:max-3]) + "..."
 }
