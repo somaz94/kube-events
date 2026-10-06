@@ -2,6 +2,53 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased (2026-10-06)
+
+### Chores
+
+- trim boilerplate comments in repo config and scripts ([80075cc](https://github.com/somaz94/kube-events/commit/80075cc511843f2df278fd7965d346fa6d625c8e))
+
+### Contributors
+
+- somaz
+
+<br/>
+
+## [v0.3.4](https://github.com/somaz94/kube-events/compare/v0.3.3...v0.3.4) (2026-10-06)
+
+### Bug Fixes
+
+- print uncolored watch lines for plain, markdown and table ([876d8dd](https://github.com/somaz94/kube-events/commit/876d8dd0a29b87b61d4c977dfd9e254a38b8bf71))
+- label summary counts by group mode and truncate by rune ([c5fecf6](https://github.com/somaz94/kube-events/commit/c5fecf6e2b2048075caa701ed669691bc8c0c4c6))
+- group by resource when --group-by is empty ([729dd72](https://github.com/somaz94/kube-events/commit/729dd7249d2cc71e68ca81925b481ed9aa2bad18))
+
+### Documentation
+
+- drop stale structure listings and fix the kubeconfig default ([4c26e40](https://github.com/somaz94/kube-events/commit/4c26e40dd80543fff7d5530a73448cdaf5fc3343))
+- correct stale doc comments that predate --group-by ([0cf9f89](https://github.com/somaz94/kube-events/commit/0cf9f895ab85ee738c5606cf193f26794e2dec93))
+
+### Continuous Integration
+
+- trim redundant comments in gitlab-mirror workflow ([ab7c711](https://github.com/somaz94/kube-events/commit/ab7c71161b22020188b1be22e2d73a91e91c4dfa))
+- retry mirror pushes on transient remote failures ([73e6c37](https://github.com/somaz94/kube-events/commit/73e6c373454ae778741eddc916a6520445fc16fc))
+- drop the dead issue-close trigger from changelog generation ([2463fdc](https://github.com/somaz94/kube-events/commit/2463fdcc94fb49b304bd393d2aa1b640c23bafc5))
+
+### Chores
+
+- drop unprinted Makefile labels and redundant script comments ([fc5738b](https://github.com/somaz94/kube-events/commit/fc5738b4f56b95ed81e9b9a69c3fde6fbf07f147))
+- tighten remaining comments in Go sources and tests ([ecd2002](https://github.com/somaz94/kube-events/commit/ecd20020e12b82c2458e4d7d218d28881e81434b))
+- trim redundant comments in demo and e2e scripts ([a593ac8](https://github.com/somaz94/kube-events/commit/a593ac8fb75185e63617486b13936e554155602c))
+- trim and tighten comments in Go sources and tests ([7508992](https://github.com/somaz94/kube-events/commit/7508992a1e25dedb11e9051c671c39accd2ff02f))
+- **deps:** bump the go-minor group with 3 updates (#14) ([#14](https://github.com/somaz94/kube-events/pull/14)) ([800c71c](https://github.com/somaz94/kube-events/commit/800c71c7f2e6428c1382efc1db96e80aa6fda3b7))
+- **deps:** bump the go-minor group with 2 updates (#13) ([#13](https://github.com/somaz94/kube-events/pull/13)) ([b007215](https://github.com/somaz94/kube-events/commit/b007215c2cdc26d71a6041be1d3e8ec688b56cc6))
+- **deps:** bump the go-minor group with 3 updates (#12) ([#12](https://github.com/somaz94/kube-events/pull/12)) ([ae26d25](https://github.com/somaz94/kube-events/commit/ae26d25827c5343251ccb308e223fe8ad6723eff))
+
+### Contributors
+
+- somaz
+
+<br/>
+
 ## [v0.3.3](https://github.com/somaz94/kube-events/compare/v0.3.2...v0.3.3) (2026-08-14)
 
 ### Continuous Integration
