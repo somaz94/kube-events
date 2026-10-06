@@ -4,7 +4,7 @@ COMMIT=$(shell git rev-parse --short HEAD 2>/dev/null || echo "none")
 DATE=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 LDFLAGS=-ldflags "-X github.com/somaz94/kube-events/cmd/cli.version=$(VERSION) -X github.com/somaz94/kube-events/cmd/cli.commit=$(COMMIT) -X github.com/somaz94/kube-events/cmd/cli.date=$(DATE)"
 
-.PHONY: build clean test test-unit cover lint fmt vet demo demo-clean demo-all test-e2e-watch check-gh branch pr help
+.PHONY: build clean test test-unit cover cover-html lint fmt vet demo demo-clean demo-all test-e2e-watch check-gh branch pr help
 
 build: ## Build the binary
 	go build $(LDFLAGS) -o $(BINARY_NAME) ./cmd/main.go
