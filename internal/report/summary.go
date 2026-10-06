@@ -83,7 +83,7 @@ func (s *Summary) groupNoun() string {
 	}
 }
 
-// PrintColor outputs events grouped by resource with ANSI colors.
+// PrintColor outputs grouped events with ANSI colors.
 func (s *Summary) PrintColor(w io.Writer, summaryOnly bool) error {
 	if summaryOnly {
 		return s.printSummaryLine(w, true)

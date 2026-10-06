@@ -55,7 +55,7 @@ type ResourceKey struct {
 	Label     string // display label for non-resource grouping modes
 }
 
-// ResourceGroup holds events grouped by their involved resource.
+// ResourceGroup holds the events that share one group key.
 type ResourceGroup struct {
 	Key    ResourceKey
 	Events []Event
