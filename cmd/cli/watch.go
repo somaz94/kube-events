@@ -119,7 +119,7 @@ func runWatch(f eventFlags) error {
 		Since:   since,
 		Kinds:   f.kinds,
 		Names:   f.names,
-		Types:   toUpper(f.types),
+		Types:   f.types,
 		Reasons: f.reasons,
 	}
 

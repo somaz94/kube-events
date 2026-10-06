@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/somaz94/kube-events/internal/client"
@@ -155,7 +154,7 @@ func runEvents(lister client.EventLister, f eventFlags, w *os.File) error {
 		Since:   since,
 		Kinds:   f.kinds,
 		Names:   f.names,
-		Types:   toUpper(f.types),
+		Types:   f.types,
 		Reasons: f.reasons,
 	})
 
@@ -175,15 +174,4 @@ func runEvents(lister client.EventLister, f eventFlags, w *os.File) error {
 	default:
 		return summary.PrintColor(w, f.summaryOnly)
 	}
-}
-
-func toUpper(ss []string) []string {
-	result := make([]string, len(ss))
-	for i, s := range ss {
-		if len(s) == 0 {
-			continue
-		}
-		result[i] = strings.ToUpper(s[:1]) + s[1:]
-	}
-	return result
 }

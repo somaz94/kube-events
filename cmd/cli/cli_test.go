@@ -61,30 +61,6 @@ func TestParseSince(t *testing.T) {
 	}
 }
 
-func TestToUpper(t *testing.T) {
-	tests := []struct {
-		input []string
-		want  []string
-	}{
-		{[]string{"warning"}, []string{"Warning"}},
-		{[]string{"normal", "warning"}, []string{"Normal", "Warning"}},
-		{[]string{"Warning"}, []string{"Warning"}},
-	}
-
-	for _, tt := range tests {
-		got := toUpper(tt.input)
-		if len(got) != len(tt.want) {
-			t.Errorf("toUpper(%v) length = %d, want %d", tt.input, len(got), len(tt.want))
-			continue
-		}
-		for i := range got {
-			if got[i] != tt.want[i] {
-				t.Errorf("toUpper(%v)[%d] = %q, want %q", tt.input, i, got[i], tt.want[i])
-			}
-		}
-	}
-}
-
 func TestExtractFlags_Defaults(t *testing.T) {
 	// Flags() only merges PersistentFlags at execution time, so read them directly.
 	pf := rootCmd.PersistentFlags()
@@ -298,6 +274,26 @@ func TestRunEvents_WithFilters(t *testing.T) {
 	}
 	if err := runEvents(lister, f, tmpFile); err != nil {
 		t.Fatalf("runEvents(filters) error: %v", err)
+	}
+}
+
+func TestRunEvents_TypeFilterIgnoresCase(t *testing.T) {
+	now := time.Now()
+	lister := &fakeLister{events: map[string][]event.Event{"": {
+		{Type: "Warning", Reason: "BackOff", LastSeen: now,
+			InvolvedObject: event.InvolvedObject{Kind: "Pod", Name: "a"}},
+		{Type: "Normal", Reason: "Pulled", LastSeen: now,
+			InvolvedObject: event.InvolvedObject{Kind: "Pod", Name: "b"}},
+	}}}
+
+	w, read := captureFile(t)
+	f := eventFlags{output: "json", since: "1h", types: []string{"warning"}}
+	if err := runEvents(lister, f, w); err != nil {
+		t.Fatalf("runEvents error: %v", err)
+	}
+	out := read()
+	if !strings.Contains(out, "BackOff") || strings.Contains(out, "Pulled") {
+		t.Errorf("expected only the Warning event for --type warning, got:\n%s", out)
 	}
 }
 
@@ -635,26 +631,6 @@ func TestRunEvents_InvalidGroupBy(t *testing.T) {
 	f := eventFlags{output: "color", since: "1h", groupBy: "invalid"}
 	if err := runEvents(lister, f, tmpFile); err == nil {
 		t.Error("expected error for invalid group-by, got nil")
-	}
-}
-
-func TestToUpper_EmptyString(t *testing.T) {
-	result := toUpper([]string{"", "warning", ""})
-	if result[0] != "" {
-		t.Errorf("expected empty string, got %q", result[0])
-	}
-	if result[1] != "Warning" {
-		t.Errorf("expected Warning, got %q", result[1])
-	}
-	if result[2] != "" {
-		t.Errorf("expected empty string, got %q", result[2])
-	}
-}
-
-func TestToUpper_Nil(t *testing.T) {
-	result := toUpper(nil)
-	if len(result) != 0 {
-		t.Errorf("expected empty slice, got %d", len(result))
 	}
 }
 
