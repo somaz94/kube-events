@@ -3,6 +3,7 @@ package cli
 import (
 	"context"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -436,6 +437,38 @@ func TestPrintWatchEvent_Normal(t *testing.T) {
 	defer tmpFile.Close()
 
 	printWatchEvent(tmpFile, e, "color")
+}
+
+func TestPrintWatchEvent_ColorOnlyForColorFormat(t *testing.T) {
+	e := event.Event{
+		Type: "Warning", Reason: "BackOff", Message: "Back-off restarting", Count: 1,
+		LastSeen: time.Now(), Age: 30 * time.Second,
+		InvolvedObject: event.InvolvedObject{Kind: "Pod", Name: "app-1", Namespace: "default"},
+	}
+
+	for _, format := range []string{"color", "plain", "markdown", "table"} {
+		f, err := os.CreateTemp(t.TempDir(), "watch-*.txt")
+		if err != nil {
+			t.Fatal(err)
+		}
+		printWatchEvent(f, e, format)
+		if err := f.Close(); err != nil {
+			t.Fatal(err)
+		}
+		raw, err := os.ReadFile(f.Name())
+		if err != nil {
+			t.Fatal(err)
+		}
+		out := string(raw)
+
+		wantColor := format == "color"
+		if got := strings.Contains(out, "\033["); got != wantColor {
+			t.Errorf("%s: ANSI codes present = %v, want %v: %q", format, got, wantColor, out)
+		}
+		if !strings.Contains(out, "BackOff") || !strings.Contains(out, "app-1") || !strings.Contains(out, "[default]") {
+			t.Errorf("%s: expected reason, object and namespace in %q", format, out)
+		}
+	}
 }
 
 func TestExtractFlags_WithArgs(t *testing.T) {

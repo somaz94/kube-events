@@ -191,6 +191,10 @@ Every other filter — including a repeated `--namespace` — applies to both.
 | Markdown | `-o markdown` | GitHub PR comments, docs |
 | Table | `-o table` | Structured terminal view |
 
+In watch mode each event prints on its own as it arrives. `-o json` emits one
+JSON object per event, `-o color` a colored line, and `-o plain`, `-o markdown`
+and `-o table` the same line without color.
+
 <br/>
 
 ## Quick Demo

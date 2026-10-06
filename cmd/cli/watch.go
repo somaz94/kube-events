@@ -186,6 +186,20 @@ func printWatchEvent(w *os.File, e event.Event, format string) {
 		if err := s.PrintJSON(w); err != nil {
 			fmt.Fprintf(os.Stderr, "[WARN] failed to print event as JSON: %v\n", err)
 		}
+	// A stream has no completed set to lay out as a table, so these print the
+	// colored line's layout without color.
+	case "plain", "markdown", "table":
+		_, icon := report.EventStyle(e.Type)
+
+		ns := ""
+		if e.InvolvedObject.Namespace != "" {
+			ns = fmt.Sprintf(" [%s]", e.InvolvedObject.Namespace)
+		}
+
+		fmt.Fprintf(w, "%s%-18s %-8s %s/%s%s %s\n",
+			icon, e.Reason, event.FormatAge(e.Age),
+			e.InvolvedObject.Kind, e.InvolvedObject.Name, ns,
+			e.Message)
 	default:
 		typeColor, icon := report.EventStyle(e.Type)
 
