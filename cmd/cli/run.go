@@ -95,7 +95,7 @@ func parseSince(s string) (time.Duration, error) {
 	}
 	d, err := time.ParseDuration(s)
 	if err != nil {
-		return 0, fmt.Errorf("invalid duration %q: %w", s, err)
+		return 0, fmt.Errorf("invalid --since value %q: %w", s, err)
 	}
 	return d, nil
 }

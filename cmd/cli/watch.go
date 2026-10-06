@@ -78,7 +78,7 @@ func runWatch(f eventFlags) error {
 	// Validate flags before connecting so a bad value fails without opening a watch.
 	since, err := parseSince(f.since)
 	if err != nil {
-		return fmt.Errorf("invalid --since value: %w", err)
+		return err
 	}
 	// --group-by is unused here; validate it anyway so a typo fails as it would when listing.
 	if err := validateGroupBy(f.groupBy); err != nil {

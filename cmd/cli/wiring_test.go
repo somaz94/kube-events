@@ -114,3 +114,21 @@ func TestExecute_RunsTheRootCommand(t *testing.T) {
 		t.Errorf("Execute() error = %v, want the version subcommand to succeed", err)
 	}
 }
+
+func TestSinceRejectionIsIdenticalAcrossModes(t *testing.T) {
+	const bad = "5 minutes"
+
+	w, _ := captureFile(t)
+	listErr := runEvents(&countingLister{}, eventFlags{output: "color", since: bad}, w)
+	watchErr := runWatch(eventFlags{since: bad, kubeconfig: missingKubeconfig(t)})
+
+	if listErr == nil || watchErr == nil {
+		t.Fatalf("both modes must fail: list=%v watch=%v", listErr, watchErr)
+	}
+	if listErr.Error() != watchErr.Error() {
+		t.Errorf("messages differ:\n  list : %q\n  watch: %q", listErr.Error(), watchErr.Error())
+	}
+	if !strings.Contains(listErr.Error(), "--since") {
+		t.Errorf("error = %q, want it to name --since", listErr.Error())
+	}
+}
