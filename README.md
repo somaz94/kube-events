@@ -228,6 +228,14 @@ Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 <br/>
 
+## Related projects
+
+- [kube-ctx](https://github.com/somaz94/kube-ctx): Switch contexts and namespaces per terminal, with production guards and a built-in fuzzy picker.
+- [kube-diff](https://github.com/somaz94/kube-diff): Diff local manifests (plain YAML, Helm, Kustomize) against the live cluster.
+- [kube-events-action](https://github.com/somaz94/kube-events-action): Check cluster events in GitHub Actions and report warnings on the pull request.
+
+<br/>
+
 ## License
 
 This project is licensed under the Apache License 2.0 — see the [LICENSE](LICENSE) file for details.
