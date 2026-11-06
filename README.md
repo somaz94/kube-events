@@ -50,7 +50,8 @@ scoop bucket add somaz94 https://github.com/somaz94/scoop-bucket
 scoop install kube-events
 
 # Krew (kubectl plugin)
-kubectl krew install events2
+kubectl krew index add somaz94 https://github.com/somaz94/krew-index
+kubectl krew install somaz94/events2
 
 # Binary (latest)
 curl -sL https://github.com/somaz94/kube-events/releases/latest/download/kube-events_linux_amd64.tar.gz | tar xz
