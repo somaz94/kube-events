@@ -8,6 +8,8 @@
 
 A CLI tool to view and summarize Kubernetes events with resource grouping and warning highlighting.
 
+![kube-events groups a namespace's events by pod, puts the pods with warnings and each warning first, and ends with a count of warnings](examples/demo/demo.gif)
+
 > For detailed documentation, see the [docs/](docs/) folder:
 >
 > [Usage](docs/USAGE.md) |

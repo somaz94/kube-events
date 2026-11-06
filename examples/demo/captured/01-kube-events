@@ -1,0 +1,32 @@
+[1mPod/bad-probe-app-dd796d958-7wvwt [kube-events-demo][0m (6 events)
+  [33m! Unhealthy         [0m [90m2s      [0m Readiness probe failed: Get "http://10.244.0.8:9999/nonexistent": dial tcp 10.244.0.8:9999: connect: connection refused
+  [32m  Started           [0m [90m1m      [0m Container started
+  [32m  Created           [0m [90m1m      [0m Container created
+  [32m  Pulled            [0m [90m1m      [0m Successfully pulled image "nginx:1.27" in 1.253s (11.923s including waiting). Image size: 68857691 bytes.
+  [32m  Pulling           [0m [90m1m      [0m Pulling image "nginx:1.27"
+  [32m  Scheduled         [0m [90m1m      [0m Successfully assigned kube-events-demo/bad-probe-app-dd796d958-7wvwt to kube-events-demo-control-plane
+
+[1mPod/crashloop-app [kube-events-demo][0m (7 events)
+  [33m! BackOff           [0m [90m15s     [0m Back-off restarting failed container failing in pod crashloop-app_kube-events-demo(9f65a0ef-08d2-4845-bfa4-f58785c75dde)
+  [32m  Started           [0m [90m18s     [0m Container started
+  [32m  Created           [0m [90m18s     [0m Container created
+  [32m  Pulled            [0m [90m18s     [0m Container image "busybox:1.37" already present on machine and can be accessed by the pod
+  [32m  Pulled            [0m [90m1m      [0m Successfully pulled image "busybox:1.37" in 3.682s (10.67s including waiting). Image size: 1911395 bytes.
+  [32m  Pulling           [0m [90m1m      [0m Pulling image "busybox:1.37"
+  [32m  Scheduled         [0m [90m1m      [0m Successfully assigned kube-events-demo/crashloop-app to kube-events-demo-control-plane
+
+[1mPod/healthy-app-8485d8cc59-4vnnq [kube-events-demo][0m (5 events)
+  [32m  Started           [0m [90m1m      [0m Container started
+  [32m  Created           [0m [90m1m      [0m Container created
+  [32m  Pulled            [0m [90m1m      [0m Successfully pulled image "nginx:1.27" in 1.285s (6.989s including waiting). Image size: 68857691 bytes.
+  [32m  Pulling           [0m [90m1m      [0m Pulling image "nginx:1.27"
+  [32m  Scheduled         [0m [90m1m      [0m Successfully assigned kube-events-demo/healthy-app-8485d8cc59-4vnnq to kube-events-demo-control-plane
+
+[1mPod/healthy-app-8485d8cc59-ppcj5 [kube-events-demo][0m (5 events)
+  [32m  Started           [0m [90m1m      [0m Container started
+  [32m  Created           [0m [90m1m      [0m Container created
+  [32m  Pulled            [0m [90m1m      [0m Successfully pulled image "nginx:1.27" in 5.723s (5.723s including waiting). Image size: 68857691 bytes.
+  [32m  Pulling           [0m [90m1m      [0m Pulling image "nginx:1.27"
+  [32m  Scheduled         [0m [90m1m      [0m Successfully assigned kube-events-demo/healthy-app-8485d8cc59-ppcj5 to kube-events-demo-control-plane
+
+[1mSummary:[0m 23 events, 4 resources | [33mWarning: 2[0m | [32mNormal: 21[0m

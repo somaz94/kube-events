@@ -10,6 +10,7 @@ Guide for building, testing, and contributing to kube-events.
 - [Project Structure](#project-structure)
 - [Build](#build)
 - [Testing](#testing)
+- [Demo](#demo)
 - [CI/CD Workflows](#cicd-workflows)
 - [Conventions](#conventions)
 
@@ -103,6 +104,17 @@ make cover-html      # Open coverage report in browser
 | `internal/report` | 97.0% |
 | `internal/client` | 90.5% |
 | `cmd/cli` | 57.4% (cluster-dependent code excluded) |
+
+<br/>
+
+## Demo
+
+The GIF in the README replays output saved from a real run, because the recording container has no cluster. `capture.sh` creates a kind cluster named `kube-events-demo` with its own kubeconfig, deploys the examples except `bad-image-pod.yaml`, waits for events, runs kube-events, and deletes the cluster on exit. When the output changes, regenerate both:
+
+```bash
+make build && examples/demo/capture.sh
+docker run --rm -v "$PWD:/vhs" ghcr.io/charmbracelet/vhs examples/demo/demo.tape
+```
 
 <br/>
 
